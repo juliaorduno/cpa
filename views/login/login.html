@@ -6,7 +6,7 @@ html{
 body {
   width: 100%;
   height: 100%;
-    background: linear-gradient(rgba(0, 0, 0, 0.5),rgba(0, 0, 0, 0.5)), url(img/login-bg.jpg) center center;
+    background: linear-gradient(rgba(0, 0, 0, 0.5),rgba(0, 0, 0, 0.5)), url(img/login-bg2.jpg) center center;
     background-attachment: fixed;
     background-size: cover;
 }
@@ -32,18 +32,22 @@ body {
                     <div class="card-content">
                         <div class="row">
                             <div class="input-field col s12">
-                                <input id="email" type="email" class="validate">
+                                <input id="email" data-error="wrong" type="email" class="validate" ng-model="iemail">
                                 <label for="email">Email</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input id="password" type="password" class="validate">
+                                <input id="password" type="password" class="validate" ng-model="ipassword">
                                 <label for="password">Contraseña</label>
                             </div>
                         </div>
+                        <!--<div class="row">
+                            <p>¿No te has registrado? <a href="" class="activator">Regístrate</a><p>
+                            <a href="#">¿Olvidaste tu contraseña?</a>
+                        </div>-->
                     </div>
-                    <a class="white-text" href="#"><div class="card-action center blue darken-2">Log in</div></a>
+                    <a class="white-text" href="#" ng-click="login()"><div class="card-action center blue darken-2">Log in</div></a>
                     <div class="card-reveal">
                         <span class="card-title grey-text text-darken-4">Title<i class="material-icons right">close</i></span>
                         <p>Here is some more information about this product that is only revealed once clicked on.</p>

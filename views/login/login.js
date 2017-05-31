@@ -5,6 +5,14 @@ angular
 
 
 function LoginController($scope,$location,$http) {
+    $scope.email = "juliapaola97@gmail.com";
+    $scope.password = "clave";
+
+    $scope.login = function(){
+        if($scope.iemail == $scope.email && $scope.ipassword == $scope.password){
+            alert("OK");
+        }
+    }
    /* if(JSON.parse(localStorage.getItem('user')) != null){
         $location.path("/panel/");
     }
@@ -32,4 +40,4 @@ function LoginController($scope,$location,$http) {
     }*/
 }
 
-//LoginController.$inject = ['$scope','$location','$http'];
+LoginController.$inject = ['$scope','$location','$http'];
