@@ -10,3 +10,27 @@
 #login-container form {
   padding-top: 20px;
 }
+
+nav{
+  background-color: #fff;
+}
+
+nav, main{
+  padding-left: 250px;
+}
+
+@media only screen and (max-width : 992px) {
+  nav, main{
+    padding-left: 0;
+  }
+}
+
+.side-nav{
+  width: 250px;
+  background-color: #263947;
+}
+
+body{
+  background-color: #EBEFF2;
+}
+
