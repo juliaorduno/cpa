@@ -10,5 +10,13 @@ angular
             .when('/catalogue', {
                 templateUrl: 'views/catalogue/catalogue.html',
                 controller: 'CatalogueController'
+            })
+            .when('/report',{
+                templateUrl: 'views/reportcard/reportcard.html',
+                controller: 'ReportController'
+            })
+            .when('/collaborators',{
+                templateUrl: 'views/collaborators/collaborators.html',
+                controller: 'CollaboratorsController'
             });
     }]);

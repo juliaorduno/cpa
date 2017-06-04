@@ -34,3 +34,47 @@ body{
   background-color: #EBEFF2;
 }
 
+.collapsible, .collapsible-body{
+  border-width: 0px;
+}
+
+.collapsible-header:hover{
+  background-color: whitesmoke;
+}
+
+#insert-indicator-btn{
+  margin-top: 20px;
+}
+
+.delete-indicator:hover{
+  color: red;
+}
+
+.delete-indicator{
+  color: black;
+}
+
+#report-card{
+  margin-bottom: 0px;
+}
+
+.progress{
+  margin-top: 0px;
+}
+
+#real, #weight{
+  border-color: rgba(179, 184, 186, 0);
+  margin: 0px;
+}
+
+#real:hover, #weight:hover{
+  border-color: rgba(179, 184, 186, 1);
+  opacity: 1;
+}
+
+.progress.state{
+  height: 100px;
+  width: 10px;
+  margin: 0px;
+}
+

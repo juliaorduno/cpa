@@ -1,0 +1,83 @@
+<cpasidenav></cpasidenav>
+<cpanavbar></cpanavbar>
+<main>
+    <div class="row">
+        <div class="col s12 m12">
+            <div class="card-panel" id="report-card">
+                <h3>Boleta de Aureliano Buendía</h3>
+                <h5 class="grey-text text-darken-1">Asesor Comercial</h5>
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="tabs">
+                            <li class="tab col s3"><a class="active" href="#areas">Áreas de éxito</a></li>
+                            <li class="tab col s3"><a href="#penalizations">Penalizaciones</a></li>
+                            <li class="tab col s3"><a href="#extras">Puntos Extras</a></li>
+                        </ul>
+                    </div>
+                    <div id="areas" class="col s12">
+                        <ul class="collapsible z-depth-0" data-collapsible="accordion">
+                            <li>
+                            <div class="collapsible-header active">CALIDAD/OPERACIONES</div>
+                            <div class="collapsible-body">
+                                <table class="responsive-table highlight">
+                                    <thead>
+                                    <tr>
+                                        <th>Indicador</th>
+                                        <th>Meta</th>
+                                        <th>Criterio</br>Mínimo</th>
+                                        <th>Real</th>
+                                        <th>Peso</br>Específico</th>
+                                        <th>Porcentaje de</br>Cumplimiento</th>
+                                        <th>Calificación</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr ng-repeat="row in area1Indicators">
+                                        <td>{{row.indicator}}</td>
+                                        <td>{{row.goal}}</td>
+                                        <td>{{row.minimum}}</td>
+                                        <!--<td>{{row.real}}</td>
+                                        <td>{{row.weight}}</td>-->
+                                        <td width="70px"><input id="real" type="text" class="validate"></td>
+                                        <td width="127px"><input id="weight" type="text" class="validate"></td>
+                                        <td>{{row.percentage}}</td>
+                                        <td>{{row.grade}}</td>
+                                        <td><a href="" class="delete-indicator" ng-click="removeIndicator(row.indicator)"><i class="material-icons">delete</i></a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <!--<div ng-bind-html="htmlString"></div>-->
+                                <div class="row">
+                                    <div class="input-field col s12 m4">
+                                        <input type="text" id="insert-indicator" class="autocomplete">
+                                        <label for="insert-indicator">Agregar Indicador</label>
+                                    </div>
+                                    
+                                     <a class="btn-floating waves-effect waves-teal grey lighten-2 z-depth-0" id="insert-indicator-btn" ng-click="insertIndicator()"><i class="material-icons">add</i></a>
+                                </div>  
+                            </div>
+                            </li>
+                            <li>
+                            <div class="collapsible-header">PRODUCTIVIDAD/COMERCIAL</div>
+                            <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                            </li>
+                            <li>
+                            <div class="collapsible-header">RENTABILIDAD/ADMINISTRACIÓN</div>
+                            <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="penalizations" class="col s12">Test 2</div>
+                    <div id="extras" class="col s12">Test 3</div>
+                    
+                </div>
+                <h6 style="font-size: 17px; margin-left: 30px" class="grey-text text-darken-1">Calificación Parcial = 96.6</h6>
+            </div>
+            <div class="progress blue lighten-3">
+                <div class="determinate blue darken-2" style="width: 70%"></div>
+            </div>
+        </div>
+    </div>
+</main>
