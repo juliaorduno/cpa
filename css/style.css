@@ -71,10 +71,3 @@ body{
   border-color: rgba(179, 184, 186, 1);
   opacity: 1;
 }
-
-.progress.state{
-  height: 100px;
-  width: 10px;
-  margin: 0px;
-}
-
