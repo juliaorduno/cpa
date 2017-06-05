@@ -18,5 +18,9 @@ angular
             .when('/collaborators',{
                 templateUrl: 'views/collaborators/collaborators.html',
                 controller: 'CollaboratorsController'
+            })
+            .when('/profile',{
+                templateUrl: 'views/profile/profile.html',
+                controller: 'ProfileController'
             });
     }]);

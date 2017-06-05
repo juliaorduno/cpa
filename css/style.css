@@ -15,7 +15,7 @@ nav{
   background-color: #fff;
 }
 
-nav, main{
+main{
   padding-left: 250px;
 }
 
@@ -28,6 +28,7 @@ nav, main{
 .side-nav{
   width: 250px;
   background-color: #263947;
+  margin-top: 64px;
 }
 
 body{
