@@ -22,5 +22,9 @@ angular
             .when('/profile',{
                 templateUrl: 'views/profile/profile.html',
                 controller: 'ProfileController'
+            })
+            .when('/',{
+                templateUrl: 'views/home/home.html',
+                controller: 'HomeController'
             });
     }]);

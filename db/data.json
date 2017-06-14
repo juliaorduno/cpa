@@ -1,0 +1,18 @@
+{
+    "user": [
+        {
+            "name": "Julia",
+            "email": "juliapaola97@gmail.com",
+            "password": "director",
+            "type": "director",
+            "role": "Director General"
+        },
+        {
+            "name": "Jorge",
+            "email": "jorgeorduno@gmail.com",
+            "password": "manager",
+            "type": "manager",
+            "role": "Gerente de Ventas"
+        }
+    ]
+}

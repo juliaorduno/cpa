@@ -32,13 +32,13 @@ body {
                     <div class="card-content">
                         <div class="row">
                             <div class="input-field col s12">
-                                <input id="email" data-error="wrong" type="email" class="validate" ng-model="iemail">
+                                <input id="email" data-error="wrong" type="email" class="validate" ng-model="form.email">
                                 <label for="email">Email</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input id="password" type="password" class="validate" ng-model="ipassword">
+                                <input id="password" type="password" class="validate" ng-model="form.password">
                                 <label for="password">Contraseña</label>
                             </div>
                         </div>
@@ -47,7 +47,7 @@ body {
                             <a href="#">¿Olvidaste tu contraseña?</a>
                         </div>-->
                     </div>
-                    <a class="white-text" href="#" ng-click="login()"><div class="card-action center blue darken-2">Log in</div></a>
+                    <a class="white-text" href="#" ng-click="login()"><div class="card-action center blue darken-2">Iniciar Sesión</div></a>
                     <div class="card-reveal">
                         <span class="card-title grey-text text-darken-4">Title<i class="material-icons right">close</i></span>
                         <p>Here is some more information about this product that is only revealed once clicked on.</p>

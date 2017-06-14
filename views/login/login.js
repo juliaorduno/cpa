@@ -4,14 +4,26 @@ angular
     .controller('LoginController', LoginController);
 
 
-function LoginController($scope,$location,$http) {
-    $scope.email = "juliapaola97@gmail.com";
-    $scope.password = "clave";
+function LoginController($scope,$location,$http, $window) {
+
+   /* if(localStorage.getItem('userr') != null){
+       $location.path("/home/");
+    }*/
+
+    $scope.form = {
+        email: "",
+        password: ""
+    }
 
     $scope.login = function(){
-        if($scope.iemail == $scope.email && $scope.ipassword == $scope.password){
-            alert("OK");
-        }
+        $.getJSON("db/data.json", function(result){
+            for(var i = 0; i < result.user.length; i++){
+                if(result.user[i].email == $scope.form.email && result.user[i].password == $scope.form.password){
+                    localStorage.setItem('userr', JSON.stringify(result.user[i]));
+                    $window.location.href = '/cpa/';
+                }
+            }
+        });
     }
    /* if(JSON.parse(localStorage.getItem('user')) != null){
         $location.path("/panel/");
@@ -40,4 +52,4 @@ function LoginController($scope,$location,$http) {
     }*/
 }
 
-LoginController.$inject = ['$scope','$location','$http'];
+LoginController.$inject = ['$scope','$location','$http', '$window'];

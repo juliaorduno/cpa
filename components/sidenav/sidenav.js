@@ -13,6 +13,7 @@ function cpaSidenav() {
     return directive;
 
     function link(scope, element, attrs) {
+        scope.user = JSON.parse(localStorage.getItem('userr'));
        $('.dropdown-button').dropdown({
             inDuration: 300,
             outDuration: 225,
