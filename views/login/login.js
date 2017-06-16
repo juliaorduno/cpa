@@ -12,10 +12,11 @@ function LoginController($scope,$location,$http, $window) {
 
     $scope.form = {
         email: "",
-        password: ""
+        password: "",
+        request: 1
     }
 
-    $scope.login = function(){
+    /*$scope.login = function(){
         $.getJSON("db/data.json", function(result){
             for(var i = 0; i < result.user.length; i++){
                 if(result.user[i].email == $scope.form.email && result.user[i].password == $scope.form.password){
@@ -24,32 +25,23 @@ function LoginController($scope,$location,$http, $window) {
                 }
             }
         });
-    }
-   /* if(JSON.parse(localStorage.getItem('user')) != null){
-        $location.path("/panel/");
-    }
-    $scope.form = {
-        request: 7,
-        email: "",
-        password: ""
-    }
+    }*/
+
     $scope.login = function () {
         $http({
-            url: "db/",
+            url: "db/connection.php",
             method: "GET",
             params: $scope.form
         }).then(function (response) {
-            // process response here..
             if(response.data != "FAILED"){
                 localStorage.setItem('user', JSON.stringify(response.data));
-                $location.path("/panel/");
+                alert(response.data);
+                $location.path("/");
             }else{
                 Materialize.toast("Login error",3000);
             }
-        }, function (response) {
-
-        });
-    }*/
+        }, function (response) {});
+    }
 }
 
 LoginController.$inject = ['$scope','$location','$http', '$window'];

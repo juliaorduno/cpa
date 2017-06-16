@@ -13,7 +13,39 @@ function cpaSidenav() {
     return directive;
 
     function link(scope, element, attrs) {
-        scope.user = JSON.parse(localStorage.getItem('userr'));
+        scope.user = JSON.parse(localStorage.getItem('user'));
+        scope.menuItems = [];
+        scope.dropdownItems = [];
+        scope.dropdownButton = '';
+
+        if(scope.user.rol === 'gerente'){
+            scope.menuItems = [{
+                item: 'Inicio',
+                ref: '/cpa/',
+                pclass: '',
+                activates: ''
+            },{
+                item: 'Colaboradores',
+                ref: '/cpa/colaboradores',
+                pclass: '',
+                activates: ''
+            }];
+
+            scope.dropdownButton = 'Catálogos';
+            scope.dropdownItems = ['Indicadores','Penalizaciones','Puntos Extras'];
+
+        } else{
+            scope.menuItems = [{
+                item: 'Inicio',
+                ref: '/cpa/',
+                pclass: '',
+                activates: ''
+            }];
+
+            scope.dropdownButton = 'Departamentos';
+            scope.dropdownItems = ['Administración','Desarrollo','Soporte','Ventas'];
+        }
+
        $('.dropdown-button').dropdown({
             inDuration: 300,
             outDuration: 225,

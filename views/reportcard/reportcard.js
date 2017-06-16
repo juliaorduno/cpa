@@ -4,7 +4,9 @@ angular
     .controller('ReportController', ReportController);
 
 
-function ReportController($scope,$location,$http,$sce) {
+function ReportController($scope,$location,$http) {
+    $scope.areas = [];
+
     $(document).ready(function(){
         $('ul.tabs').tabs({
             swipeable: true,
@@ -73,6 +75,17 @@ function ReportController($scope,$location,$http,$sce) {
         grade: 100.00
     }];
 
+    $http({
+        url: 'db/connection.php',
+        method: 'GET',
+        params: {
+            request: 0
+        }
+    }).then(function(response){
+        $scope.areas = response.data;
+        console.log($scope.areas);
+    }, function (response){});
+
 }
 
-ReportController.$inject = ['$scope','$location','$http','$sce'];
+ReportController.$inject = ['$scope','$location','$http'];

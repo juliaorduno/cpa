@@ -3,18 +3,19 @@
             <div class="background">
                     <img src="img/login-bg.jpg"/>
             </div>
-            <a><p class="white-text name light">{{user.name}}</p></a>
-            <a><p class="white-text email light">{{user.role}}</p></a>
+            <a><p class="white-text name light">{{user.nombre}} {{user.apellido}}</p></a>
+            <a><p class="white-text email light">{{user.rol}}</p></a>
     </div>
     <ul>
-        <li><a href="/cpa/" class="white-text"><p class="light">Inicio</p></a></li>
-        <li><a href="/cpa/collaborators/" class="white-text"><p class="light">Colaboradores</p></a></li>
-        <li><a href="#!" class="white-text" ><p class="light dropdown-button" data-activates='dropdown1'>Catálogos</p></a></li>
+        <li ng-repeat="item in menuItems">
+            <a href={{item.ref}} class="white-text" ><p class="light">{{item.item}}</p></a>
+        </li>
+        <li>
+            <a href="#" class="white-text" ><p class="light dropdown-button" data-activates='dropdown1'>{{dropdownButton}}</p></a>
+        </li>
     </ul>
     <ul id='dropdown1' class='dropdown-content'>
-        <li><a href="/cpa/catalogue/"><i class="material-icons">view_module</i>Indicadores</a></li>
-        <li><a href="#!"><i class="material-icons">cloud</i>Penalizaciones</a></li>
-        <li><a href="#!"><i class="material-icons">cloud</i>Puntos Extras</a></li>
+        <li ng-repeat="item in dropdownItems"><a href="/cpa/catalogo">{{item}}</a></li>
     </ul>
 </div>
 

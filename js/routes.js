@@ -7,7 +7,7 @@ angular
                 templateUrl: 'views/login/login.html',
                 controller: 'LoginController'
             })
-            .when('/catalogue', {
+            .when('/catalogo', {
                 templateUrl: 'views/catalogue/catalogue.html',
                 controller: 'CatalogueController'
             })
@@ -15,7 +15,7 @@ angular
                 templateUrl: 'views/reportcard/reportcard.html',
                 controller: 'ReportController'
             })
-            .when('/collaborators',{
+            .when('/colaboradores',{
                 templateUrl: 'views/collaborators/collaborators.html',
                 controller: 'CollaboratorsController'
             })
