@@ -1,8 +1,8 @@
 <?php
     
 if(count($_GET) > 0 && isset($_GET["request"])){
-    $serverName = "juliapaola\sqlexpress";
-    //$serverName = "vmwinsiete\sqlexpress,1533";
+    //$serverName = "juliapaola\sqlexpress";
+    $serverName = "vmwinsiete\sqlexpress,1533";
     $connectionInfo = array( "Database"=>"cpa", "UID"=>"sa", "PWD"=>"a01630895","CharacterSet" => "UTF-8");
     $conn = sqlsrv_connect( $serverName, $connectionInfo);
 
@@ -121,6 +121,26 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 }
                 sqlsrv_free_stmt($stmt);
                 echo 'Enviado';
+                break;
+
+            //Get collaborators
+            case 6:
+                $department_id = $_GET["department_id"];
+                $sql = "SELECT CONCAT(nombre, ' ', apellido) as nombre, empleado_id, rol 
+                        FROM CPA_Empleado, CPA_Rol
+                        WHERE CPA_Rol.rol_id = CPA_Empleado.rol_id 
+                            AND CPA_Empleado.departamento_id = $department_id 
+                            AND CPA_Empleado.activo = 'SI'";
+                            
+                $stmt = sqlsrv_query( $conn, $sql);
+                if( $stmt === false ) {
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
                 break;
         }
         sqlsrv_close( $conn );

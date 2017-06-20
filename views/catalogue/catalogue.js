@@ -8,6 +8,8 @@ function CatalogueController($scope,$location,$http) {
 
     $scope.department = JSON.parse(localStorage.getItem('department'));
     $scope.indicators = [];
+    $scope.selectedRole = [];
+    $scope.selectedArea = [];
     
     var getFrequencies = function(){
         var data = {};
@@ -72,7 +74,6 @@ function CatalogueController($scope,$location,$http) {
                 $scope.form.frequency = val;
             },
         });
-
         $('select').material_select();
     }
 
@@ -94,6 +95,7 @@ function CatalogueController($scope,$location,$http) {
     }
 
     $scope.newIndicator = function(){
+        console.log($scope.form);
         for(var key in $scope.form){
             if($scope.form[key] === ""){
                 Materialize.toast("Completar formulario",3000);
@@ -125,7 +127,6 @@ function CatalogueController($scope,$location,$http) {
     }
 
     getData();
-    
 }
 
 CatalogueController.$inject = ['$scope','$location','$http'];

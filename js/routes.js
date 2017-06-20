@@ -27,7 +27,7 @@ angular
                 templateUrl: 'views/collaborators/collaborators.html',
                 controller: 'CollaboratorsController'
             })
-            .when('/profile',{
+            .when('/perfil/:id/:name',{
                 templateUrl: 'views/profile/profile.html',
                 controller: 'ProfileController'
             })
