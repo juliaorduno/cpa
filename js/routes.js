@@ -7,7 +7,15 @@ angular
                 templateUrl: 'views/login/login.html',
                 controller: 'LoginController'
             })
-            .when('/catalogo', {
+            .when('/indicadores', {
+                templateUrl: 'views/catalogue/catalogue.html',
+                controller: 'CatalogueController'
+            })
+            .when('/penalizaciones', {
+                templateUrl: 'views/catalogue/catalogue.html',
+                controller: 'CatalogueController'
+            })
+            .when('/puntos_extras', {
                 templateUrl: 'views/catalogue/catalogue.html',
                 controller: 'CatalogueController'
             })

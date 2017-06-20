@@ -23,55 +23,54 @@
                     </select>
                 </div>
                 <div class="col s12 m4">
-                    <a data-target="modal1" class="btn-floating waves-effect waves-light blue darken-4 right"><i class="material-icons">add</i></a>
+                    <a data-target="modal1" ng-click="activateModal()" class="btn-floating waves-effect waves-light blue darken-4 right"><i class="material-icons">add</i></a>
                     <div id="modal1" class="modal modal-fixed-footer">
                         <div class="modal-content">
                             <h4 style="margin-bottom: 30px">Nuevo Indicador</h4>
                             <div class="row">
                                 <div class="input-field">
-                                    <input id="new-indicator" type="text" class="validate">
+                                    <input id="new-indicator" type="text" class="validate" ng-model="form.indicator">
                                     <label for="new-indicator">Indicador</label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="input-field">
-                                    <select>
+                                    <select ng-model="form.area_id" class="validate">
                                         <option value="" disabled selected></option>
-                                        <option value="1">Option 1</option>
-                                        <option value="2">Option 2</option>
-                                        <option value="3">Option 3</option>
+                                        <option value="1">Calidad/Operaciones</option>
+                                        <option value="2">Prouctividad/Comercial</option>
+                                        <option value="3">Rentabilidad/Administración</option>
                                     </select>
                                     <label>Área de éxito</label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="input-field col m6">
-                                    <select>
+                                    <select ng-model="form.role_id" class="validate">
                                         <option value="" disabled selected></option>
-                                        <option value="1">Option 1</option>
-                                        <option value="2">Option 2</option>
-                                        <option value="3">Option 3</option>
+                                        <option ng-repeat="role in roles" value={{role.id}}>{{role.name}}</option>-
                                     </select>
                                     <label>Rol</label>
                                 </div>
-                                <div class="input-field col s12 m6">
+                                <div class="input-field col s12 m6" class="validate">
                                         <input type="text" id="unit" class="autocomplete">
                                         <label for="unit">Unidad</label>
                                 </div>
                             </div>
                             <div class="row">
-                               <div class="input-field col s12 m6">
+                               <div class="input-field col s12 m6" class="validate">
                                         <input type="text" id="source" class="autocomplete">
                                         <label for="source">Fuente de Evidencia</label>
                                 </div>
-                                <div class="input-field col s12 m6">
+                                <div class="input-field col s12 m6" class="validate">
                                         <input type="text" id="frequency" class="autocomplete">
                                         <label for="frequency">Periodicidad</label>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                        <a class="modal-action modal-close waves-effect waves-green btn-flat">Aceptar</a>
+                        <a class="modal-action waves-effect waves-green btn-flat" ng-click="newIndicator()">Aceptar</a>
+                        <a class="modal-action modal-close waves-effect waves-green btn-flat">Cancelar</a>
                         </div>
                     </div>
                 </div>
@@ -89,21 +88,13 @@
                 </thead>
 
                 <tbody>
-                <tr>
-                    <td>Efectividad de cierre</td>
-                    <td>Calidad/Operaciones</td>
-                    <td>Asesor Comercial</td>
-                    <td>Porcentaje</td>
-                    <td>Reporte</td>
-                    <td>Mensual</td>
-                </tr>
-                <tr>
-                    <td>Efectividad de cierre</td>
-                    <td>Calidad/Operaciones</td>
-                    <td>Asesor Comercial</td>
-                    <td>Porcentaje</td>
-                    <td>Reporte</td>
-                    <td>Mensual</td>
+                <tr ng-repeat="indicator in indicators">
+                    <td>{{indicator.indicador}}</td>
+                    <td>{{indicator.area}}</td>
+                    <td>{{indicator.rol}}</td>
+                    <td>{{indicator.unidad}}</td>
+                    <td>{{indicator.fuente}}</td>
+                    <td>{{indicator.frecuencia}}</td>
                 </tr>
                 </tbody>
             </table>

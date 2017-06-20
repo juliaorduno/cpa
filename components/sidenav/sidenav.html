@@ -4,7 +4,7 @@
                     <img src="img/login-bg.jpg"/>
             </div>
             <a><p class="white-text name light">{{user.nombre}} {{user.apellido}}</p></a>
-            <a><p class="white-text email light">{{user.rol}}</p></a>
+            <a><p class="white-text email light">{{role}}</p></a>
     </div>
     <ul>
         <li ng-repeat="item in menuItems">
@@ -15,7 +15,7 @@
         </li>
     </ul>
     <ul id='dropdown1' class='dropdown-content'>
-        <li ng-repeat="item in dropdownItems"><a href="/cpa/catalogo">{{item}}</a></li>
+        <li ng-repeat="item in dropdownItems"><a href="{{item.ref}}">{{item.item}}</a></li>
     </ul>
 </div>
 

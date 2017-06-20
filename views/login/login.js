@@ -6,26 +6,15 @@ angular
 
 function LoginController($scope,$location,$http, $window) {
 
-   /* if(localStorage.getItem('userr') != null){
-       $location.path("/home/");
-    }*/
+   if(localStorage.getItem('user') != null){
+       $location.path("/");
+    }
 
     $scope.form = {
         email: "",
         password: "",
         request: 1
     }
-
-    /*$scope.login = function(){
-        $.getJSON("db/data.json", function(result){
-            for(var i = 0; i < result.user.length; i++){
-                if(result.user[i].email == $scope.form.email && result.user[i].password == $scope.form.password){
-                    localStorage.setItem('userr', JSON.stringify(result.user[i]));
-                    $window.location.href = '/cpa/';
-                }
-            }
-        });
-    }*/
 
     $scope.login = function () {
         $http({
@@ -35,7 +24,6 @@ function LoginController($scope,$location,$http, $window) {
         }).then(function (response) {
             if(response.data != "FAILED"){
                 localStorage.setItem('user', JSON.stringify(response.data));
-                alert(response.data);
                 $location.path("/");
             }else{
                 Materialize.toast("Login error",3000);

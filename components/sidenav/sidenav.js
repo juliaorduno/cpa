@@ -3,7 +3,7 @@ angular
     .module('cpaApp')
     .directive('cpasidenav', cpaSidenav);
 
-function cpaSidenav() {
+function cpaSidenav($http) {
     var directive = {
         link: link,
         replace: true,
@@ -17,6 +17,7 @@ function cpaSidenav() {
         scope.menuItems = [];
         scope.dropdownItems = [];
         scope.dropdownButton = '';
+        scope.role = '';
 
         if(scope.user.rol === 'gerente'){
             scope.menuItems = [{
@@ -32,7 +33,28 @@ function cpaSidenav() {
             }];
 
             scope.dropdownButton = 'Catálogos';
-            scope.dropdownItems = ['Indicadores','Penalizaciones','Puntos Extras'];
+            scope.dropdownItems = [{
+                item: 'Indicadores',
+                ref: '/cpa/indicadores'
+            },{
+                item: 'Penalizaciones',
+                ref: '/cpa/penalizaciones'
+            },{
+                item: 'Puntos Extras',
+                ref: '/cpa/puntos_extras'
+            }];
+
+            $http({
+                url: 'db/connection.php',
+                method: 'GET',
+                params: {
+                    usuario_id: scope.user.usuario_id,
+                    request: 2
+                }
+            }).then(function(response){
+                scope.role = 'Gerente de ' + response.data.departamento;
+                localStorage.setItem('department', JSON.stringify(response.data));
+            }, function(response){});
 
         } else{
             scope.menuItems = [{
@@ -59,3 +81,5 @@ function cpaSidenav() {
         );
     }
 }
+
+cpaSidenav.$inject = ['$http'];

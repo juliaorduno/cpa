@@ -5,82 +5,127 @@ angular
 
 
 function CatalogueController($scope,$location,$http) {
+
+    $scope.department = JSON.parse(localStorage.getItem('department'));
+    $scope.indicators = [];
+    
+    var getFrequencies = function(){
+        var data = {};
+        $http({
+            url: "db/connection.php",
+            method: "GET",
+            params: {
+                request: 4
+            }
+        }).then(function (response){
+            for(var i=0; i<response.data.length; i++){
+                data[response.data[i].frecuencia] =  null;
+            }
+        }, function (response){});
+        return data;
+    }
+
+    var frequencies = getFrequencies();
+
+    var searchAttribute = function(attribute){
+        var visited = [];
+        var data = {};
+        var roleData = [];
+        for(var i=0; i<$scope.indicators.length; i++)
+        {
+            var newAttr = $scope.indicators[i][attribute]
+            if(!visited.includes(newAttr)){
+                visited.push(newAttr);
+                if(attribute === 'rol'){
+                    data.name = newAttr;
+                    data.id =  $scope.indicators[i][attribute+'_id'];
+                    roleData.push(data);
+                }else{
+                   data[newAttr] = null; 
+                } 
+            }
+        }
+        if(attribute === 'rol'){
+            data = roleData;
+        }
+        return data;
+    }
+    
+    $scope.activateModal = function(){
+        $('#unit').autocomplete({
+            data: searchAttribute('unidad'),
+            onAutocomplete: function(val) {
+                $scope.form.unit = val;
+            },
+        });
+
+        $('#source').autocomplete({
+            data: searchAttribute('fuente'),
+            onAutocomplete: function(val) {
+                $scope.form.source = val;
+            },
+        });
+
+        $('#frequency').autocomplete({
+            data: frequencies,
+            onAutocomplete: function(val) {
+                $scope.form.frequency = val;
+            },
+        });
+
+        $('select').material_select();
+    }
+
+
     $(document).ready(function() {
         $('.modal').modal();
         $('select').material_select();
     });
 
-    $('#unit').autocomplete({
-        data: {
-        "Eventos": null,
-        "Porcentaje": null,
-        "Utilidad": null
-        },
-        onAutocomplete: function(val) {
-        // Callback function when value is autcompleted.
-        },
-    });
-
-    $('#source').autocomplete({
-        data: {
-        "Reporte": null,
-        "Autoría": null
-        },
-        onAutocomplete: function(val) {
-        // Callback function when value is autcompleted.
-        },
-    });
-
-    $('#frequency').autocomplete({
-        data: {
-        "Mensual": null,
-        "Trimestral": null,
-        "Anual": null
-        },
-        onAutocomplete: function(val) {
-        // Callback function when value is autcompleted.
-        },
-    });
-
-    var indicator_id = 1;
-    $scope.indicator = {
-        indicator_id: indicator_id
+    $scope.form = {
+        indicator: "",
+        area_id: "",
+        role_id: "",
+        unit: "",
+        frequency: "",
+        source: "",
+        department_id: $scope.department.departamento_id,
+        request: 5
     }
 
-    $http({
-        url: "db/",
-        method: "GET",
-        params: {
-            request: 0,
-            indicator_id: indicator_id
-        }
-    }).then(function (response){
-        $scope.indicator = response.data;
-        console.log("Hola");
-        console.log($scope.indicator);
-    }, function (response){});
-
-    /**
-        $scope.lab = {
-            lab_id: lab_id,
-            lab_image: "default.png",
-            lab_name: "Lab"
+    $scope.newIndicator = function(){
+        for(var key in $scope.form){
+            if($scope.form[key] === ""){
+                Materialize.toast("Completar formulario",3000);
+                return;
+            }
         }
         $http({
-            url: "db/",
+            url: "db/connection.php",
+            method: "GET",
+            params: $scope.form
+        }).then(function (response){
+            getData();
+            Materialize.toast('Enviado', 1000,'',function(){$('#modal1').modal('close')});
+        }, function (response){});
+    }
+
+    var getData = function(){
+        $http({
+            url: "db/connection.php",
             method: "GET",
             params: {
-                request: 0,
-                lab_id: lab_id
+                request: 3,
+                department_id: $scope.department.departamento_id
             }
-        }).then(function (response) {
-            // process response here..
-            $scope.lab = response.data;
-        }, function (response) {
+        }).then(function (response){
+            $scope.indicators = response.data;
+            $scope.roles = searchAttribute('rol');
+        }, function (response){});
+    }
 
-        });
-
-     */
+    getData();
+    
 }
 
 CatalogueController.$inject = ['$scope','$location','$http'];
