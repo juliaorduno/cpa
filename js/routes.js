@@ -12,12 +12,12 @@ angular
                 controller: 'CatalogueController'
             })
             .when('/penalizaciones', {
-                templateUrl: 'views/catalogue/catalogue.html',
-                controller: 'CatalogueController'
+                templateUrl: 'views/modifiers/modifiers.html',
+                controller: 'ModifierController'
             })
             .when('/puntos_extras', {
-                templateUrl: 'views/catalogue/catalogue.html',
-                controller: 'CatalogueController'
+                templateUrl: 'views/modifiers/modifiers.html',
+                controller: 'ModifierController'
             })
             .when('/report',{
                 templateUrl: 'views/reportcard/reportcard.html',

@@ -12,7 +12,6 @@ function ReportController($scope,$location,$http) {
             swipeable: true,
             responsiveThreshold: true
         });
-        $('.collapsible').collapsible();
     });
 
     $('#insert-indicator').autocomplete({

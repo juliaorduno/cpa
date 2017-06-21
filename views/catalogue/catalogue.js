@@ -8,8 +8,8 @@ function CatalogueController($scope,$location,$http) {
 
     $scope.department = JSON.parse(localStorage.getItem('department'));
     $scope.indicators = [];
-    $scope.selectedRole = [];
-    $scope.selectedArea = [];
+    //$scope.selectedRole = [];
+    //$scope.selectedArea = [];
     
     var getFrequencies = function(){
         var data = {};
@@ -74,13 +74,10 @@ function CatalogueController($scope,$location,$http) {
                 $scope.form.frequency = val;
             },
         });
-        $('select').material_select();
     }
-
 
     $(document).ready(function() {
         $('.modal').modal();
-        $('select').material_select();
     });
 
     $scope.form = {

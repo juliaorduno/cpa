@@ -142,6 +142,50 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 sqlsrv_free_stmt( $stmt);
                 echo json_encode($rows,JSON_UNESCAPED_UNICODE);
                 break;
+
+            //Get collaborator grades
+            case 7: 
+                $collaborator_id = $_GET["collaborator_id"];
+                $sql = "";
+
+            //Get modifiers' types
+            case 8:
+                $area_id = $_GET["area_id"];
+                $sql = "SELECT * 
+                        FROM CPA_TipoModificador
+                        WHERE area_id = $area_id";
+                            
+                $stmt = sqlsrv_query( $conn, $sql);
+                if( $stmt === false ) {
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                break;
+
+            //Get modifiers
+            case 9:
+                $area_id = $_GET["area_id"];
+                $sql = "SELECT sq.evento_id, sq.evento, u.unidad, sq.tipo_id, sq.area_id
+                        FROM CPA_Unidad AS u RIGHT JOIN (
+                            SELECT evento_id, evento, unidad_id, e.tipo_id, t.area_id
+                            FROM CPA_Evento AS e, CPA_TipoModificador AS t
+                            WHERE e.tipo_id = t.tipo_id AND area_id = $area_id) AS sq
+                        ON u.unidad_id = sq.unidad_id";
+                            
+                $stmt = sqlsrv_query( $conn, $sql);
+                if( $stmt === false ) {
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                break;
         }
         sqlsrv_close( $conn );
     }
