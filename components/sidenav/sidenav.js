@@ -3,7 +3,7 @@ angular
     .module('cpaApp')
     .directive('cpasidenav', cpaSidenav);
 
-function cpaSidenav($http) {
+function cpaSidenav($http, $rootScope) {
     var directive = {
         link: link,
         replace: true,
@@ -18,6 +18,23 @@ function cpaSidenav($http) {
         scope.dropdownItems = [];
         scope.dropdownButton = '';
         scope.role = '';
+
+        $rootScope.areas = [{
+            area: 'Calidad/Operaciones',
+            id: '1'
+        },{
+            area: 'Productividad/Comercial',
+            id: '2'
+        },{
+            area: 'Rentabilidad/Administración',
+            id: '3'
+        },{
+            area: 'Penalizaciones',
+            id: '4'
+        },{
+            area: 'Puntos Extras',
+            id: '5'
+        }];
 
         if(scope.user.rol === 'gerente'){
             scope.menuItems = [{
@@ -82,4 +99,4 @@ function cpaSidenav($http) {
     }
 }
 
-cpaSidenav.$inject = ['$http'];
+cpaSidenav.$inject = ['$http', '$rootScope'];

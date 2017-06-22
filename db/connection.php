@@ -146,7 +146,23 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             //Get collaborator grades
             case 7: 
                 $collaborator_id = $_GET["collaborator_id"];
-                $sql = "";
+                $month_id = $_GET["month_id"];
+                $sql = "SELECT mes_id, area_id, indicador, unidad, fuente, frecuencia, meta, minimo, real_obtenido, peso, porcentaje, calificacion
+                        FROM CPA_CalificacionIndicador AS ci, (
+                            SELECT indicador_id, indicador, unidad, fuente, frecuencia, i.area_id
+                            FROM CPA_Indicador AS i, CPA_Unidad AS u, CPA_Fuente AS f, CPA_Frecuencia AS fr
+                            WHERE i.unidad_id = u.unidad_id AND i.fuente_id = f.fuente_id AND fr.frecuencia_id = i.frecuencia_id) AS sq
+                        WHERE ci.indicador_id = sq.indicador_id AND empleado_id = $collaborator_id AND mes_id = '$month_id'";
+                $stmt = sqlsrv_query( $conn, $sql);
+                if( $stmt === false ) {
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                break;
 
             //Get modifiers' types
             case 8:
@@ -176,6 +192,26 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                             WHERE e.tipo_id = t.tipo_id AND area_id = $area_id) AS sq
                         ON u.unidad_id = sq.unidad_id";
                             
+                $stmt = sqlsrv_query( $conn, $sql);
+                if( $stmt === false ) {
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                break;
+
+            //Get available months por certain employee
+            case 10:
+                $collaborator_id = $_GET["collaborator_id"];
+                $sql = "SELECT * 
+                        FROM CPA_Mes 
+                        WHERE exists (
+                            SELECT DISTINCT mes_id 
+                            FROM CPA_CalificacionIndicador 
+                            WHERE mes_id = CPA_Mes.mes_id AND empleado_id = $collaborator_id)";
                 $stmt = sqlsrv_query( $conn, $sql);
                 if( $stmt === false ) {
                     die( print_r( sqlsrv_errors(), true));

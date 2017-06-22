@@ -6,9 +6,62 @@
           <div class="card-panel">
             <h3>Aureliano Buendía</h3>
             <h5 class="grey-text text-darken-1">Asesor Comercial</h5>
+            <div class="row">
+              <div class="col m4"></div>
+              <div class="col m4"></div>
+              <div class="col m4">
+                <div input-field>
+                  <select 
+                  ng-model="selectedMonth" 
+                  ng-change="changeMonth(selectedMonth)" 
+                  ng-options="month.mes_id as month.mes for month in months"
+                  material-select watch>
+                  </select>
+              </div>
+              </div>
+            </div>
+            <ul class="collapsible popout" data-collapsible="expandable" ng-if="selectedMonth != '2017'">
+              <li ng-repeat="area in areas track by $index" ng-if="$index < 3">
+                <div class="collapsible-header">{{area.area}}</div>
+                <div class="collapsible-body" id="area-{{area.id}}">
+                  <table class="responsive-table highlight">
+                    <thead>
+                      <tr>
+                        <th>Indicador</th>
+                        <th>Unidad de Medida</th>
+                        <th>Fuente de evidencia</th>
+                        <th>Frecuencia</th>
+                        <th>Meta</th>
+                        <th>Criterio mínimo aceptable</th>
+                        <th>Real</th>
+                        <th>Peso Específico</th>
+                        <th>Porcentaje de Cumplimiento</th>
+                        <th>Calificación</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="grade in grades" ng-if="grade.area_id === area.id">
+                        <td>{{grade.indicador}}</td>
+                        <td>{{grade.unidad}}</td>
+                        <td>{{grade.fuente}}</td>
+                        <td>{{grade.frecuencia}}</td>
+                        <td>{{grade.meta}}</td>
+                        <td>{{grade.minimo}}</td>
+                        <td>{{grade.real_obtenido}}</td>
+                        <td>{{grade.peso}}</td>
+                        <td>{{grade.porcentaje}}</td>
+                        <td>{{grade.calificacion}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 </main>
+
+
 
 

@@ -5,7 +5,6 @@ angular
 
 
 function ReportController($scope,$location,$http) {
-    $scope.areas = [];
 
     $(document).ready(function(){
         $('ul.tabs').tabs({
@@ -74,7 +73,7 @@ function ReportController($scope,$location,$http) {
         grade: 100.00
     }];
 
-    $http({
+    /*http({
         url: 'db/connection.php',
         method: 'GET',
         params: {
@@ -83,7 +82,7 @@ function ReportController($scope,$location,$http) {
     }).then(function(response){
         $scope.areas = response.data;
         console.log($scope.areas);
-    }, function (response){});
+    }, function (response){});*/
 
 }
 

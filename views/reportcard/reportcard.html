@@ -16,9 +16,9 @@
                     </div>
                     <div id="areas" class="col s12">
                         <ul class="collapsible z-depth-0 popout" data-collapsible="expandable">
-                            <li>
-                            <div class="collapsible-header active">CALIDAD/OPERACIONES</div>
-                            <div class="collapsible-body"  id="area-1">
+                            <li ng-repeat="area in areas">
+                            <div class="collapsible-header active">{{area.area}}</div>
+                            <div class="collapsible-body"  id="area-{{area.id}}">
                                 <table class="responsive-table highlight">
                                     <thead>
                                     <tr>
@@ -58,14 +58,6 @@
                                      <a class="btn-floating waves-effect waves-teal grey lighten-2 z-depth-0" id="insert-indicator-btn" ng-click="insertIndicator()"><i class="material-icons">add</i></a>
                                 </div>  
                             </div>
-                            </li>
-                            <li>
-                            <div class="collapsible-header">PRODUCTIVIDAD/COMERCIAL</div>
-                            <div class="collapsible-body"  id="area-2"><span>Lorem ipsum dolor sit amet.</span></div>
-                            </li>
-                            <li>
-                            <div class="collapsible-header">RENTABILIDAD/ADMINISTRACIÓN</div>
-                            <div class="collapsible-body" id="area-3"><span>Lorem ipsum dolor sit amet.</span></div>
                             </li>
                         </ul>
                     </div>
