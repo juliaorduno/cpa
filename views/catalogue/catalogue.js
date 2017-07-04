@@ -92,7 +92,6 @@ function CatalogueController($scope,$location,$http) {
     }
 
     $scope.newIndicator = function(){
-        console.log($scope.form);
         for(var key in $scope.form){
             if($scope.form[key] === ""){
                 Materialize.toast("Completar formulario",3000);

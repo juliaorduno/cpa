@@ -72,3 +72,20 @@ body{
   border-color: rgba(179, 184, 186, 1);
   opacity: 1;
 }
+
+.card-action .right-align .btn-flat:hover{
+  background-color: #fff;
+}
+
+.table-wrapper {
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.table-wrapper table{
+  display: inline;
+}
+
+.collection a span, .collection a p{
+  color: black;
+}

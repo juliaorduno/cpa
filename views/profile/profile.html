@@ -4,10 +4,13 @@
     <div class="row">
         <div class="col s12 m12">
           <div class="card-panel">
-            <h3>Aureliano Buendía</h3>
-            <h5 class="grey-text text-darken-1">Asesor Comercial</h5>
+            <h3>{{current.nombre}}</h3>
+            <h5 class="grey-text text-darken-1">{{current.rol}}</h5>
             <div class="row">
-              <div class="col m4"></div>
+              <div class="col m4">
+                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO'">Calificación Final: <span>{{final[0].final}}</span></h6>
+                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO'">Calificación Parcial: <span>{{final[0].parcial}}</span></h6>
+              </div>
               <div class="col m4"></div>
               <div class="col m4">
                 <div input-field>
@@ -20,7 +23,7 @@
               </div>
               </div>
             </div>
-            <ul class="collapsible popout" data-collapsible="expandable" ng-if="selectedMonth != '2017'">
+            <ul class="collapsible popout" data-collapsible="accordion" ng-if="selectedMonth != '2017'">
               <li ng-repeat="area in areas track by $index" ng-if="$index < 3">
                 <div class="collapsible-header">{{area.area}}</div>
                 <div class="collapsible-body" id="area-{{area.id}}">
@@ -56,7 +59,65 @@
                   </table>
                 </div>
               </li>
+              <li ng-repeat="area in areas track by $index" ng-if="$index > 2">
+                <div class="collapsible-header">{{area.area}}</div>
+                <div class="collapsible-body" id="area-{{area.id}}">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Indicador</th>
+                        <th>Unidad</th>
+                        <th>Fuente de evidencia</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="event in events" ng-if="event.area_id === area.id"> 
+                        <td>{{event.evento}}</td>
+                        <td>{{event.unidad}}</td>
+                        <td>{{event.fuente}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </li>
             </ul>
+            <div class="table-wrapper" ng-if="selectedMonth === '2017'">
+              <table class="highlight" id="resume-indicators">
+                  <thead>
+                  <tr>
+                      <th>Área de éxito</th>
+                      <th>Indicador</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr ng-repeat-start="(key, val) in resumeData">
+                      <td rowspan="{{val.length}}">{{key}}</td>
+                      <td>{{val[0]}}</td>
+                  </tr>
+                  <tr ng-repeat-end ng-repeat="value in val.slice(1)">
+                      <td>{{value}}</td>
+                  </tr>
+                  </tbody>
+              </table>
+              <table class="highlight resume-grades" ng-repeat="(key,value) in totalGrades | groupBy: 'mes_id'">
+                <thead>
+                  <tr>
+                      <th>%</th>
+                      <th>Ind.</th>
+                      <th>Peso</th>
+                      <th>Calif.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="grade in value">
+                    <td>{{grade.porcentaje}}</td>
+                    <td></td>
+                    <td>{{grade.peso}}</td>
+                    <td>{{grade.calificacion}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

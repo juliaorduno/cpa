@@ -19,7 +19,7 @@ angular
                 templateUrl: 'views/modifiers/modifiers.html',
                 controller: 'ModifierController'
             })
-            .when('/report',{
+            .when('/boleta',{
                 templateUrl: 'views/reportcard/reportcard.html',
                 controller: 'ReportController'
             })

@@ -1,8 +1,8 @@
 <?php
     
 if(count($_GET) > 0 && isset($_GET["request"])){
-    //$serverName = "juliapaola\sqlexpress";
-    $serverName = "vmwinsiete\sqlexpress,1533";
+    $serverName = "juliapaola\sqlexpress";
+    //$serverName = "vmwinsiete\sqlexpress,1533";
     $connectionInfo = array( "Database"=>"cpa", "UID"=>"sa", "PWD"=>"a01630895","CharacterSet" => "UTF-8");
     $conn = sqlsrv_connect( $serverName, $connectionInfo);
 
@@ -12,11 +12,8 @@ if(count($_GET) > 0 && isset($_GET["request"])){
         switch($_GET["request"]){
             //Get all areas 
             case 0:
-                $sql = "SELECT area_id, area FROM CPA_Area";
+                $sql = "SELECT area_id, area FROM CPA_Area WHERE activo = 'SI'";
                 $stmt = sqlsrv_query( $conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
-                }
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }
@@ -72,9 +69,6 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                             AND CPA_Rol.departamento_id = $department_id
                         ORDER BY indicador";
                 $stmt = sqlsrv_query( $conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
-                }
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }
@@ -86,9 +80,6 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             case 4:
                 $sql = "SELECT frecuencia FROM CPA_Frecuencia";
                 $stmt = sqlsrv_query($conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
-                }
                 while( $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC) ){
                     $rows[] = $row;
                 }
@@ -126,16 +117,23 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             //Get collaborators
             case 6:
                 $department_id = $_GET["department_id"];
-                $sql = "SELECT CONCAT(nombre, ' ', apellido) as nombre, empleado_id, rol 
-                        FROM CPA_Empleado, CPA_Rol
-                        WHERE CPA_Rol.rol_id = CPA_Empleado.rol_id 
-                            AND CPA_Empleado.departamento_id = $department_id 
-                            AND CPA_Empleado.activo = 'SI'";
+                $sql = "SELECT e.nombre, e.empleado_id, e.rol, mt.mes, mt.final FROM
+                            (SELECT CONCAT(nombre, ' ', apellido) as nombre, empleado_id, rol
+                            FROM CPA_Empleado, CPA_Rol
+                            WHERE CPA_Rol.rol_id = CPA_Empleado.rol_id 
+                                AND CPA_Empleado.departamento_id = $department_id
+                                AND CPA_Empleado.activo = 'SI') as e
+                            LEFT JOIN
+                            (SELECT m.mes, sq.empleado_id, f.final FROM CPA_Mes as m, ( 
+                                SELECT MAX(CONVERT(int,mes_id)) AS mes, empleado_id
+                                FROM CPA_CalificacionFinal
+                                WHERE fechaFin IS NOT NULL
+                                GROUP BY empleado_id) as sq, CPA_CalificacionFinal as f
+                            WHERE m.mes_id = CONVERT(varchar(6), sq.mes)
+                                AND f.mes_id = m.mes_id) as mt
+                            ON e.empleado_id = mt.empleado_id";
                             
                 $stmt = sqlsrv_query( $conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
-                }
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }
@@ -154,9 +152,6 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                             WHERE i.unidad_id = u.unidad_id AND i.fuente_id = f.fuente_id AND fr.frecuencia_id = i.frecuencia_id) AS sq
                         WHERE ci.indicador_id = sq.indicador_id AND empleado_id = $collaborator_id AND mes_id = '$month_id'";
                 $stmt = sqlsrv_query( $conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
-                }
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }
@@ -172,9 +167,6 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                         WHERE area_id = $area_id";
                             
                 $stmt = sqlsrv_query( $conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
-                }
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }
@@ -193,9 +185,6 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                         ON u.unidad_id = sq.unidad_id";
                             
                 $stmt = sqlsrv_query( $conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
-                }
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }
@@ -213,9 +202,79 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                             FROM CPA_CalificacionIndicador 
                             WHERE mes_id = CPA_Mes.mes_id AND empleado_id = $collaborator_id)";
                 $stmt = sqlsrv_query( $conn, $sql);
-                if( $stmt === false ) {
-                    die( print_r( sqlsrv_errors(), true));
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
                 }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                } else {
+                    echo "NO INFO";
+                }
+                break;
+
+            //Get modifiers per month for an specific employee
+            case 11:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $sql = "SELECT area_id, evento, unidad, fuente
+                        FROM CPA_TipoModificador AS t, (
+                            SELECT evento, unidad, fuente, tipo_id
+                            FROM CPA_Modificador AS m, CPA_Evento AS e, CPA_Fuente AS f, CPA_Unidad AS u
+                            WHERE empleado_id = $collaborator_id AND mes_id = '$month_id'
+                                AND m.evento_id = e.evento_id AND m.fuente_id = f.fuente_id 
+                                AND e.unidad_id = u.unidad_id) AS sq
+                        WHERE t.tipo_id = sq.tipo_id";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
+                break;
+
+            //Get final grade for certain month
+            case 12:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $sql = "SELECT parcial, final
+                        FROM CPA_CalificacionFinal
+                        WHERE empleado_id = $collaborator_id AND mes_id = '$month_id'";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
+                break;
+
+            //Get indicators for resume
+            case 13:
+                $collaborator_id = $_GET["collaborator_id"];
+                $sql = "SELECT DISTINCT i.indicador_id, indicador, area_id 
+                        FROM CPA_CalificacionIndicador c, CPA_Indicador i 
+                        WHERE c.indicador_id = i.indicador_id AND empleado_id = $collaborator_id
+                        ORDER BY area_id, indicador_id";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                break;
+
+            //Get all grades for resume
+            case 14:
+                $collaborator_id = $_GET["collaborator_id"];
+                $sql = "SELECT ci.indicador_id, mes_id, porcentaje, peso, calificacion, i.area_id 
+                        FROM CPA_CalificacionIndicador AS ci, CPA_Indicador AS i
+                        WHERE empleado_id = $collaborator_id AND ci.indicador_id = i.indicador_id
+                        ORDER BY i.area_id, ci.indicador_id";
+                $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }

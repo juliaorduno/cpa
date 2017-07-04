@@ -4,7 +4,7 @@ angular
     .controller('CollaboratorsController', CollaboratorsController);
 
 
-function CollaboratorsController($scope,$location,$http) {
+function CollaboratorsController($scope,$location,$http,$rootScope) {
 
     $scope.department = JSON.parse(localStorage.getItem('department'));
     $scope.collaborators = [];
@@ -21,9 +21,10 @@ function CollaboratorsController($scope,$location,$http) {
      }, function (response){});
 
      $scope.inspect = function(collaborator){
+        localStorage.setItem('current', JSON.stringify(collaborator));
         $location.path('perfil/'+ collaborator.empleado_id + '/' + collaborator.nombre);
      }
 
 }
 
-CollaboratorsController.$inject = ['$scope','$location','$http'];
+CollaboratorsController.$inject = ['$scope','$location','$http','$rootScope'];

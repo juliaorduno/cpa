@@ -9,6 +9,15 @@ function ModifierController($scope,$location,$http) {
     $scope.types = [];
     $scope.modifiers = [];
     $scope.header = "";
+    $scope.newType = "";
+
+    $(document).ready(function() {
+        $('.modal').modal();
+    });
+
+    $scope.addNew = function(type){
+        $scope.newType = type;
+    }
 
     var getTypes = function(area_id){
         $http({
@@ -33,7 +42,6 @@ function ModifierController($scope,$location,$http) {
             }
         }).then(function (response){
             $scope.modifiers = response.data;
-            console.log($scope.modifiers);
         }, function (response){});
     }
 
