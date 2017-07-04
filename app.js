@@ -1,5 +1,5 @@
 'use strict';
-angular.module('cpaApp', ['ngRoute','ui.materialize'])
+angular.module('cpaApp', ['ngRoute','ui.materialize','angular.filter'])
     .config(['$locationProvider', '$httpProvider', function ($locationProvider, $httpProvider) {
         $httpProvider
             .defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
