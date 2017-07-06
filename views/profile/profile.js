@@ -14,11 +14,55 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
     $scope.current = JSON.parse(localStorage.getItem('current'));
     $scope.indicators = [];
     $scope.resumeData = {
-        '1':[],
-        '2':[],
-        '3':[]
+        'Calidad/Operaciones':[],
+        'Productividad/Comercial':[],
+        'Rentabilidad/Administración':[],
     };
+    $scope.extraPoints = [];
+    $scope.penalizations = [];
     $scope.totalGrades = [];
+    $scope.finalGrades = [];
+    $scope.totalEvents = [];
+
+    var getFinalGrades = function(){
+        $http({
+            url: "db/connection.php",
+            method: "GET",
+            params: {
+                request: 16,
+                collaborator_id: collaborator_id
+            }
+        }).then(function (response){
+            $scope.finalGrades = response.data;
+        }, function (response){});
+    }
+
+    var getTotalEvents = function(month_id){
+        $http({
+            url: "db/connection.php",
+            method: "GET",
+            params: {
+                request: 17,
+                collaborator_id: collaborator_id,
+                month_id: month_id
+            }
+        }).then(function (response){
+            console.log(month_id);
+            var extras = false;
+            var pen = false;
+            if(response.data != ""){
+                if(response.data.some(event => event.area_id === '4')){
+                    pen = true;
+                } else if(response.data.some(event => event.area_id === '5')){
+                    extras = true;
+                }
+            }
+            
+            $scope.extraPoints.push(extras);
+            $scope.penalizations.push(pen);
+            $scope.totalEvents.push(response.data);
+        }, function (response){});
+    }
 
     var getTotalGrades = function(){
         $http({
@@ -30,7 +74,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             }
         }).then(function (response){
             $scope.totalGrades = response.data;
-            console.log($scope.totalGrades);
         }, function (response){});
     }
 
@@ -57,16 +100,30 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }, function (response){});
     }
 
+    var getTypes = function(area_id){
+        $http({
+            url: "db/connection.php",
+            method: "GET",
+            params: {
+                request: 8,
+                area_id: area_id
+            }
+        }).then(function (response){
+            var area;
+            if(area_id === '4'){
+                area = $rootScope.areas[3].area;
+            } else{
+                area = $rootScope.areas[4].area;
+            }
+            for(var i=0; i<response.data.length; i++){
+                $scope.resumeDataMod[area].push(response.data[i].tipo);
+            }
+        }, function (response){});
+    }
+
     var setResumeData = function(){
         for(var i=0; i<$scope.indicators.length; i++){
-            $scope.resumeData[$scope.indicators[i].area_id].push($scope.indicators[i].indicador);
-        }
-        //console.log($scope.indicators.some(indicator => indicator.area_id === '1'));
-
-        for(var i=0; i<3; i++){
-            Object.defineProperty($scope.resumeData, $rootScope.areas[i].area,
-                Object.getOwnPropertyDescriptor($scope.resumeData, $rootScope.areas[i].id));
-            delete $scope.resumeData[$rootScope.areas[i].id];
+            $scope.resumeData[$scope.indicators[i].area].push($scope.indicators[i].indicador);
         }
     }
 
@@ -81,6 +138,11 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }).then(function (response){
             $scope.indicators = response.data;
             setResumeData();
+            getFinalGrades();
+            console.log($scope.months);
+            for(var i=0; i<$scope.months.length-1; i++){
+                getTotalEvents($scope.months[i].mes_id);
+            }
         }, function (response){});
     }
 

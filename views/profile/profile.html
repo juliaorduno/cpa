@@ -8,8 +8,8 @@
             <h5 class="grey-text text-darken-1">{{current.rol}}</h5>
             <div class="row">
               <div class="col m4">
-                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO'">Calificación Final: <span>{{final[0].final}}</span></h6>
-                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO'">Calificación Parcial: <span>{{final[0].parcial}}</span></h6>
+                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth != '2017'">Calificación Final: <span>{{final[0].final}}</span></h6>
+                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth != '2017'">Calificación Parcial: <span>{{final[0].parcial}}</span></h6>
               </div>
               <div class="col m4"></div>
               <div class="col m4">
@@ -82,14 +82,15 @@
               </li>
             </ul>
             <div class="table-wrapper" ng-if="selectedMonth === '2017'">
-              <table class="highlight" id="resume-indicators">
-                  <thead>
+              <table class="bordered" id="resume-indicators">
+                <caption></caption>
+                <thead>
                   <tr>
                       <th>Área de éxito</th>
                       <th>Indicador</th>
                   </tr>
-                  </thead>
-                  <tbody>
+                </thead>
+                <tbody>
                   <tr ng-repeat-start="(key, val) in resumeData">
                       <td rowspan="{{val.length}}">{{key}}</td>
                       <td>{{val[0]}}</td>
@@ -97,9 +98,13 @@
                   <tr ng-repeat-end ng-repeat="value in val.slice(1)">
                       <td>{{value}}</td>
                   </tr>
-                  </tbody>
+                </tbody>
+                <caption align="bottom" class="left-align blue-grey lighten-4">Calificación Parcial:</caption>
               </table>
-              <table class="highlight resume-grades" ng-repeat="(key,value) in totalGrades | groupBy: 'mes_id'">
+              <table class="bordered striped resume-grades" ng-repeat="(key,value) in totalGrades | groupBy: 'mes_id' track by $index">
+                <caption class="left-align teal lighten-4">
+                  <span class="badge">{{finalGrades[$index].final}}</span>
+                  {{months[$index]['mes']}}</caption>
                 <thead>
                   <tr>
                       <th>%</th>
@@ -116,6 +121,14 @@
                     <td>{{grade.calificacion}}</td>
                   </tr>
                 </tbody>
+                <caption align="bottom" class="left-align blue-grey lighten-4">{{finalGrades[$index].parcial}}
+                  <a href="">
+                    <span tooltipped data-position="left" data-delay="50" data-tooltip="I am tooltip" class="badge" ng-if="extraPoints[$index]">
+                      <i class="material-icons tiny">add</i>
+                    </span
+                  ></a>
+                  <span class="badge" ng-if="penalizations[$index]"><i class="material-icons tiny">remove</i></span>
+                </caption>
               </table>
             </div>
           </div>

@@ -89,3 +89,7 @@ body{
 .collection a span, .collection a p{
   color: black;
 }
+
+caption{
+  padding-left: 5px;
+}

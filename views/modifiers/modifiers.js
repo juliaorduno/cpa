@@ -9,7 +9,14 @@ function ModifierController($scope,$location,$http) {
     $scope.types = [];
     $scope.modifiers = [];
     $scope.header = "";
-    $scope.newType = "";
+    $scope.newType = {};
+    $scope.area_id = "";
+    $scope.newEvent = {
+        type_id: "",
+        event: "",
+        unit_id: "",
+        request: 15
+    }
 
     $(document).ready(function() {
         $('.modal').modal();
@@ -19,26 +26,26 @@ function ModifierController($scope,$location,$http) {
         $scope.newType = type;
     }
 
-    var getTypes = function(area_id){
+    var getTypes = function(){
         $http({
             url: "db/connection.php",
             method: "GET",
             params: {
                 request: 8,
-                area_id: area_id
+                area_id: $scope.area_id
             }
         }).then(function (response){
             $scope.types = response.data;
         }, function (response){});
     }
 
-    var getModifiers = function(area_id){
+    var getModifiers = function(){
         $http({
             url: "db/connection.php",
             method: "GET",
             params: {
                 request: 9,
-                area_id: area_id
+                area_id: $scope.area_id
             }
         }).then(function (response){
             $scope.modifiers = response.data;
@@ -47,16 +54,41 @@ function ModifierController($scope,$location,$http) {
 
     switch(currentLocation){
         case '/penalizaciones':
-            $scope.header = "Penalizaciones"
-            getTypes(4);
-            getModifiers(4);
+            $scope.header = "Penalizaciones";
+            $scope.area_id = 4;
+            getTypes();
+            getModifiers();
             break;
 
         case '/puntos_extras':
             $scope.header = "Puntos Extras"
-            getTypes(5);
-            getModifiers(5);
+            $scope.area_id = 5;
+            getTypes();
+            getModifiers();
             break;
+    }
+
+    $scope.insertNew = function(){
+        $scope.newEvent.type_id = $scope.newType.tipo_id;
+
+        if($scope.newType.tipo_id === '7'){
+            $scope.newEvent.unit_id = 11;
+        } else if($scope.newType.tipo_id === '9'){
+            $scope.newEvent.unit_id = 12;
+        } else{
+            $scope.newEvent.unit_id = null;
+        }
+
+        console.log($scope.newEvent);
+
+        $http({
+            url: "db/connection.php",
+            method: "GET",
+            params: $scope.newEvent
+        }).then(function (response){
+            getModifiers();
+            Materialize.toast('Enviado', 1000,'',function(){$('#modal1').modal('close')});
+        }, function (response){});
     }
 }
 

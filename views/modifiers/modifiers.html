@@ -11,7 +11,7 @@
                     <ul class="collection">
                         <li class="collection-item" ng-repeat="m in modifiers" ng-if="m.tipo_id === type.tipo_id">{{m.evento}}</li>
                     </ul>
-                    <a data-target="modal2" href="#" ng-click="addNew(type.tipo)">Agregar nuevo</a modal>
+                    <a data-target="modal2" href="#" ng-click="addNew(type)">Agregar nuevo</a modal>
                 </div>
             </div>
           </div>
@@ -19,13 +19,13 @@
     </div>
     <div id="modal2" class="modal bottom-sheet">
         <div class="modal-content">
-            <h5>Agregar a {{newType}}</h5>
+            <h5>Agregar a {{newType.tipo}}</h5>
                     <div class="input-field col s12">
-                    <input type="text" class="validate">
+                    <input type="text" class="validate" ng-model="newEvent.event">
                 </div>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Aceptar</a>
+            <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" ng-click="insertNew()">Aceptar</a>
             <a class="modal-action modal-close waves-effect waves-green btn-flat">Cancelar</a>
         </div>
     </div>

@@ -255,10 +255,12 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             //Get indicators for resume
             case 13:
                 $collaborator_id = $_GET["collaborator_id"];
-                $sql = "SELECT DISTINCT i.indicador_id, indicador, area_id 
-                        FROM CPA_CalificacionIndicador c, CPA_Indicador i 
-                        WHERE c.indicador_id = i.indicador_id AND empleado_id = $collaborator_id
-                        ORDER BY area_id, indicador_id";
+                $sql = "SELECT DISTINCT i.indicador_id, indicador, i.area_id, area 
+                        FROM CPA_CalificacionIndicador c, CPA_Indicador i, CPA_Area a
+                        WHERE c.indicador_id = i.indicador_id 
+                            AND empleado_id = $collaborator_id
+                            AND i.area_id = a.area_id
+                        ORDER BY i.area_id, indicador_id";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
@@ -280,6 +282,68 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 }
                 sqlsrv_free_stmt( $stmt);
                 echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                break;
+
+            //Insert event
+            case 15:
+                $type_id = $_GET["type_id"];
+                $event = $_GET["event"];
+                $unit_id = $_GET["unit_id"];
+                $sql = "INSERT INTO CPA_Evento(evento, unidad_id, tipo_id) VALUES (?,?,?)";
+                $params = array("$event",$unit_id,$type_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+            
+            //Get all final grades per collaborator
+            case 16:
+                $collaborator_id = $_GET["collaborator_id"];
+                $sql = "SELECT mes_id, parcial, final 
+                        FROM CPA_CalificacionFinal
+                        WHERE empleado_id = $collaborator_id
+                        ORDER BY mes_id";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                break;
+
+            //Get events per month per collaborator
+            case 17:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $sql = "SELECT count(m.evento_id) AS eventos, tipo, area_id
+                        FROM CPA_Modificador m, CPA_Evento e, CPA_TipoModificador t
+                        WHERE m.evento_id = e.evento_id
+                        AND mes_id = '$month_id'
+                        AND empleado_id = '$collaborator_id'
+                        AND t.tipo_id = e.tipo_id
+                        GROUP BY tipo, area_id";
+                /*$sql = "SELECT e.eventos, t.tipo_id
+                        FROM CPA_TipoModificador t LEFT JOIN (
+                            SELECT count(m.evento_id) AS eventos, tipo_id 
+                            FROM CPA_Evento v, CPA_Modificador m
+                            WHERE m.evento_id = v.evento_id 
+                            AND empleado_id = $collaborator_id
+                            AND mes_id = $month_id
+                            GROUP BY tipo_id) e 
+                        ON t.tipo_id = e.tipo_id ORDER BY t.tipo_id";*/
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
                 break;
         }
         sqlsrv_close( $conn );
