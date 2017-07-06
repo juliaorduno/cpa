@@ -123,11 +123,11 @@
                 </tbody>
                 <caption align="bottom" class="left-align blue-grey lighten-4">{{finalGrades[$index].parcial}}
                   <a href="">
-                    <span tooltipped data-position="left" data-delay="50" data-tooltip="I am tooltip" class="badge" ng-if="extraPoints[$index]">
+                    <span tooltipped data-position="left" data-delay="50" data-tooltip="I am tooltip" class="badge" ng-if="extraPoints[months[$index]['mes_id']]">
                       <i class="material-icons tiny">add</i>
                     </span
                   ></a>
-                  <span class="badge" ng-if="penalizations[$index]"><i class="material-icons tiny">remove</i></span>
+                  <span class="badge" ng-if="penalizations[months[$index]['mes_id']]"><i class="material-icons tiny">remove</i></span>
                 </caption>
               </table>
             </div>

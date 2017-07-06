@@ -18,11 +18,11 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         'Productividad/Comercial':[],
         'Rentabilidad/Administración':[],
     };
-    $scope.extraPoints = [];
-    $scope.penalizations = [];
+    $scope.extraPoints = {};
+    $scope.penalizations = {};
     $scope.totalGrades = [];
     $scope.finalGrades = [];
-    $scope.totalEvents = [];
+    $scope.totalEvents = {};
 
     var getFinalGrades = function(){
         $http({
@@ -47,7 +47,8 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                 month_id: month_id
             }
         }).then(function (response){
-            console.log(month_id);
+            month_id = month_id.toString();
+            $scope.totalEvents[month_id] = response.data;
             var extras = false;
             var pen = false;
             if(response.data != ""){
@@ -58,9 +59,8 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                 }
             }
             
-            $scope.extraPoints.push(extras);
-            $scope.penalizations.push(pen);
-            $scope.totalEvents.push(response.data);
+            $scope.extraPoints[month_id] = extras;
+            $scope.penalizations[month_id] = pen;
         }, function (response){});
     }
 
@@ -139,7 +139,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             $scope.indicators = response.data;
             setResumeData();
             getFinalGrades();
-            console.log($scope.months);
             for(var i=0; i<$scope.months.length-1; i++){
                 getTotalEvents($scope.months[i].mes_id);
             }
@@ -148,10 +147,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
 
     $scope.changeMonth = function(selected){
         $scope.selectedMonth = selected;
-        if($scope.selectedMonth === '2017'){
-            getIndicators();
-            getTotalGrades();
-        }else{
+        if($scope.selectedMonth != '2017'){
             getDataPerMonth(7);
             getDataPerMonth(11);
             getDataPerMonth(12);
@@ -175,6 +171,9 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             $scope.changeMonth($scope.months[$scope.months.length-1].mes_id);
         } 
      }, function (response){});
+
+    getIndicators();
+    getTotalGrades();
      
 }
 
