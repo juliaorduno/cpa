@@ -93,3 +93,7 @@ body{
 caption{
   padding-left: 5px;
 }
+
+#areas .section h6{
+  font-size: 20px;
+}

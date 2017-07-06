@@ -5,7 +5,6 @@ angular
 
 
 function LoginController($scope,$location,$http, $window) {
-
    if(localStorage.getItem('user') != null){
        $location.path("/");
     }

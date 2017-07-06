@@ -154,6 +154,10 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }
     }
 
+    $scope.report = function(collaborator){
+        $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);
+    }
+
      $http({
         url: "db/connection.php",
         method: "GET",

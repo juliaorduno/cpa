@@ -6,6 +6,7 @@
           <div class="card-panel">
             <h3>{{current.nombre}}</h3>
             <h5 class="grey-text text-darken-1">{{current.rol}}</h5>
+            <a class="waves-effect waves-teal btn-flat" ng-click="report()">Generar Boleta</a>
             <div class="row">
               <div class="col m4">
                 <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth != '2017'">Calificación Final: <span>{{final[0].final}}</span></h6>

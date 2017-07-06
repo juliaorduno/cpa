@@ -345,6 +345,56 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                     echo json_encode($rows,JSON_UNESCAPED_UNICODE);
                 }
                 break;
+
+            //Get previous report
+            case 18:
+                $collaborator_id = $_GET["collaborator_id"];
+                $sql = "SELECT ci.indicador_id, indicador, meta, minimo, peso, area_id 
+                        FROM CPA_Indicador i, CPA_CalificacionIndicador ci, (
+                            SELECT MAX(CONVERT(int,mes_id)) AS mes 
+                            FROM CPA_CalificacionIndicador) sq
+                        WHERE ci.indicador_id = i.indicador_id
+                        AND mes_id = sq.mes
+                        AND empleado_id = $collaborator_id";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
+                break;
+
+            //Send indicator grades
+            case 19:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $indicator_id = $_GET["indicador_id"];
+                $meta = $_GET["meta"];
+                $minimo = $_GET["minimo"];
+                $real_obtenido = $_GET["real"];
+                $peso = $_GET["peso"];
+                $porcentaje = $_GET["porcentaje"];
+                $calificacion = $_GET["calificacion"];
+
+                $procedure_params = array( &$collaborator_id,&$month_id,&$indicator_id,&$meta,&$minimo,
+                    &$real_obtenido,&$porcentaje,&$peso,&$calificacion);
+
+                $sql = "EXEC CPA_InsertarIndicadores
+                        @empleado = ?, @mes = ?, @indicador_id = ?, @meta = ?, 
+                        @minimo = ?, @real_obtenido = ?, @porcentaje = ?, @peso = ?, @calificacion = ?";
+                $stmt = sqlsrv_prepare($conn, $sql, $procedure_params);
+
+                if( !$stmt ) {
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                if( sqlsrv_execute( $stmt ) === false ) {
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                sqlsrv_free_stmt($stmt);
+                echo 'Enviado';
+                break;
         }
         sqlsrv_close( $conn );
     }
