@@ -14,7 +14,7 @@ function cpaNavbar() {
     function link(scope, element, attrs, location) {
         scope.logout = function(){
             localStorage.setItem('user', null);
-            $location.path('/');
+            $location.path('/login');
         }
     }
 }

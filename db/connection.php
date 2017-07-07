@@ -150,7 +150,12 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                             SELECT indicador_id, indicador, unidad, fuente, frecuencia, i.area_id
                             FROM CPA_Indicador AS i, CPA_Unidad AS u, CPA_Fuente AS f, CPA_Frecuencia AS fr
                             WHERE i.unidad_id = u.unidad_id AND i.fuente_id = f.fuente_id AND fr.frecuencia_id = i.frecuencia_id) AS sq
-                        WHERE ci.indicador_id = sq.indicador_id AND empleado_id = $collaborator_id AND mes_id = '$month_id'";
+                        WHERE ci.indicador_id = sq.indicador_id 
+                        AND empleado_id = $collaborator_id 
+                        AND mes_id = '$month_id'
+                        AND EXISTS (
+							SELECT * FROM CPA_CalificacionFinal f WHERE fechaFin IS NOT NULL 
+							AND ci.empleado_id = f.empleado_id AND ci.mes_id = f.mes_id)";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
@@ -199,8 +204,11 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                         FROM CPA_Mes 
                         WHERE exists (
                             SELECT DISTINCT mes_id 
-                            FROM CPA_CalificacionIndicador 
-                            WHERE mes_id = CPA_Mes.mes_id AND empleado_id = $collaborator_id)";
+                            FROM CPA_CalificacionIndicador ci
+                            WHERE mes_id = CPA_Mes.mes_id AND empleado_id = $collaborator_id
+                            AND EXISTS (
+                                SELECT * FROM CPA_CalificacionFinal f WHERE fechaFin IS NOT NULL 
+                                AND ci.empleado_id = f.empleado_id AND ci.mes_id = f.mes_id))";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
@@ -223,7 +231,10 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                             FROM CPA_Modificador AS m, CPA_Evento AS e, CPA_Fuente AS f, CPA_Unidad AS u
                             WHERE empleado_id = $collaborator_id AND mes_id = '$month_id'
                                 AND m.evento_id = e.evento_id AND m.fuente_id = f.fuente_id 
-                                AND e.unidad_id = u.unidad_id) AS sq
+                                AND e.unidad_id = u.unidad_id
+                                AND EXISTS (
+                                    SELECT * FROM CPA_CalificacionFinal f WHERE fechaFin IS NOT NULL 
+                                    AND m.empleado_id = f.empleado_id AND m.mes_id = f.mes_id)) AS sq
                         WHERE t.tipo_id = sq.tipo_id";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
@@ -241,7 +252,8 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $month_id = $_GET["month_id"];
                 $sql = "SELECT parcial, final
                         FROM CPA_CalificacionFinal
-                        WHERE empleado_id = $collaborator_id AND mes_id = '$month_id'";
+                        WHERE empleado_id = $collaborator_id AND mes_id = '$month_id'
+                        AND fechaFin IS NOT NULL ";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
@@ -272,9 +284,13 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             //Get all grades for resume
             case 14:
                 $collaborator_id = $_GET["collaborator_id"];
-                $sql = "SELECT ci.indicador_id, mes_id, porcentaje, peso, calificacion, i.area_id 
+                $sql = "SELECT ci.indicador_id, ci.mes_id, porcentaje, peso, calificacion, i.area_id 
                         FROM CPA_CalificacionIndicador AS ci, CPA_Indicador AS i
-                        WHERE empleado_id = $collaborator_id AND ci.indicador_id = i.indicador_id
+                        WHERE ci.empleado_id = $collaborator_id 
+                            AND ci.indicador_id = i.indicador_id
+                            AND EXISTS (
+							SELECT * FROM CPA_CalificacionFinal f WHERE fechaFin IS NOT NULL 
+							AND ci.empleado_id = f.empleado_id AND ci.mes_id = f.mes_id)
                         ORDER BY i.area_id, ci.indicador_id";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
@@ -306,7 +322,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $collaborator_id = $_GET["collaborator_id"];
                 $sql = "SELECT mes_id, parcial, final 
                         FROM CPA_CalificacionFinal
-                        WHERE empleado_id = $collaborator_id
+                        WHERE empleado_id = $collaborator_id AND fechaFin IS NOT NULL
                         ORDER BY mes_id";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
@@ -321,10 +337,13 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $collaborator_id = $_GET["collaborator_id"];
                 $month_id = $_GET["month_id"];
                 $sql = "SELECT count(m.evento_id) AS eventos, tipo, area_id
-                        FROM CPA_Modificador m, CPA_Evento e, CPA_TipoModificador t
+                        FROM CPA_Modificador m, CPA_Evento e, CPA_TipoModificador t, CPA_CalificacionFinal f
                         WHERE m.evento_id = e.evento_id
-                        AND mes_id = '$month_id'
-                        AND empleado_id = '$collaborator_id'
+                        AND m.mes_id = '$month_id'
+                        AND m.empleado_id = $collaborator_id
+                        AND fechaFin IS NOT NULL
+						AND f.mes_id = m.mes_id
+						AND f.empleado_id = m.empleado_id
                         AND t.tipo_id = e.tipo_id
                         GROUP BY tipo, area_id";
                 /*$sql = "SELECT e.eventos, t.tipo_id

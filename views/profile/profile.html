@@ -6,8 +6,9 @@
           <div class="card-panel">
             <h3>{{current.nombre}}</h3>
             <h5 class="grey-text text-darken-1">{{current.rol}}</h5>
+            <h6 ng-if="current.mes === null">No se ha registrado calificación para este colaborador.</h6>
             <a class="waves-effect waves-teal btn-flat" ng-click="report()">Generar Boleta</a>
-            <div class="row">
+            <div class="row" ng-if="current.mes != null">
               <div class="col m4">
                 <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth != '2017'">Calificación Final: <span>{{final[0].final}}</span></h6>
                 <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth != '2017'">Calificación Parcial: <span>{{final[0].parcial}}</span></h6>
@@ -24,7 +25,7 @@
               </div>
               </div>
             </div>
-            <ul class="collapsible popout" data-collapsible="accordion" ng-if="selectedMonth != '2017'">
+            <ul class="collapsible popout" data-collapsible="accordion" ng-if="selectedMonth != '2017' && current.mes != null">
               <li ng-repeat="area in areas track by $index" ng-if="$index < 3">
                 <div class="collapsible-header">{{area.area}}</div>
                 <div class="collapsible-body" id="area-{{area.id}}">
@@ -82,7 +83,7 @@
                 </div>
               </li>
             </ul>
-            <div class="table-wrapper" ng-if="selectedMonth === '2017'">
+            <div class="table-wrapper" ng-if="selectedMonth === '2017' && current.mes != null">
               <table class="bordered" id="resume-indicators">
                 <caption></caption>
                 <thead>
