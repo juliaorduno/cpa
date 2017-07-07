@@ -23,6 +23,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
     $scope.totalGrades = [];
     $scope.finalGrades = [];
     $scope.totalEvents = {};
+    $scope.remainingMonths = [];
 
     var getFinalGrades = function(){
         $http({
@@ -34,6 +35,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             }
         }).then(function (response){
             $scope.finalGrades = response.data;
+            console.log($scope.finalGrades);
         }, function (response){});
     }
 
@@ -154,11 +156,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }
     }
 
-    $scope.report = function(collaborator){
-        $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);
-    }
-
-     $http({
+    $http({
         url: "db/connection.php",
         method: "GET",
         params: {
@@ -176,9 +174,32 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         } 
      }, function (response){});
 
-    getIndicators();
-    getTotalGrades();
-     
+    $http({
+        url: "db/connection.php",
+        method: "GET",
+        params: {
+            collaborator_id: collaborator_id,
+            request: 20
+        }
+    }).then(function (response){
+        $scope.remainingMonths = response.data;
+    }, function (response){});
+    
+
+    $scope.newReport = function(month){
+        $('#remaining-months').modal('close');
+        localStorage.setItem('currentMonth', JSON.stringify(month));
+        $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre + '/' + month.mes);
+        /*if($scope.finalGrades.some(grade => grade.mes_id === month_id)){
+            $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);
+        }*/
+    }
+
+    if($scope.current.mes != null){
+        getIndicators();
+        getTotalGrades();
+    }
+
 }
 
 ProfileController.$inject = ['$scope','$location','$http','$routeParams','$rootScope'];

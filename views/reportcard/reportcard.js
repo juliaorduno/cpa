@@ -8,6 +8,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
 
     var collaborator_id = $routeParams.id;
     $scope.current = JSON.parse(localStorage.getItem('current'));
+    $scope.currentMonth = JSON.parse(localStorage.getItem('currentMonth'));
     $scope.indicators = [];
 
     $(document).ready(function(){

@@ -322,7 +322,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $collaborator_id = $_GET["collaborator_id"];
                 $sql = "SELECT mes_id, parcial, final 
                         FROM CPA_CalificacionFinal
-                        WHERE empleado_id = $collaborator_id AND fechaFin IS NOT NULL
+                        WHERE empleado_id = $collaborator_id
                         ORDER BY mes_id";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
@@ -413,6 +413,24 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 }
                 sqlsrv_free_stmt($stmt);
                 echo 'Enviado';
+                break;
+
+            //Get remaining months per collaborator
+            case 20:
+                $collaborator_id = $_GET["collaborator_id"];
+                $sql = "SELECT m.mes_id, mes 
+                        FROM CPA_Mes m
+                        WHERE activo = 'SI' AND m.mes_id NOT IN (
+                            SELECT mes_id FROM CPA_CalificacionFinal 
+                            WHERE empleado_id = $collaborator_id AND fechaFin IS NOT NULL)";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
                 break;
         }
         sqlsrv_close( $conn );
