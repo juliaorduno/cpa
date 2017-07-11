@@ -12,12 +12,12 @@ function LoginController($scope,$location,$http, $window) {
     $scope.form = {
         email: "",
         password: "",
-        request: 1
+        request: 1 //0
     }
 
     $scope.login = function () {
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php", //login.php
             method: "GET",
             params: $scope.form
         }).then(function (response) {

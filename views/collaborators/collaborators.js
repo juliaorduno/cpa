@@ -8,22 +8,58 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
 
     $scope.department = JSON.parse(localStorage.getItem('department'));
     $scope.collaborators = [];
+    $scope.roles = [];
+    $scope.form = {
+        name: "",
+        lastName: "",
+        department_id: $scope.department.departamento_id,
+        role_id: null,
+        request: 22
+    }
 
-    $http({
-        url: "db/connection.php",
-        method: "GET",
-        params: {
-            request: 6,
-            department_id: $scope.department.departamento_id
-        }
-    }).then(function (response){
-        $scope.collaborators = response.data;
-     }, function (response){});
-
-     $scope.inspect = function(collaborator){
+    $scope.inspect = function(collaborator){
         localStorage.setItem('current', JSON.stringify(collaborator));
         $location.path('perfil/'+ collaborator.empleado_id + '/' + collaborator.nombre);
-     }
+    }
+
+    $scope.insertCollaborator = function(){
+        $http({
+            url: "db/connection.php", //"db/collaborators.php"
+            method: "GET",
+            params: $scope.form
+        }).then(function (response){
+            Materialize.toast('Enviado', 1000,'',function(){$('#new-collaborator').modal('close')});
+            getCollaborators();
+        }, function (response){});
+    }
+
+    $scope.activateModal = function(){
+        $http({
+            url: "db/connection.php", //"db/collaborators.php"
+            method: "GET",
+            params: {
+                request: 23, //0
+                department_id: $scope.department.departamento_id
+            }
+        }).then(function (response){
+            $scope.roles = response.data;
+        }, function (response){});
+    }
+
+    var getCollaborators = function(){
+        $http({
+            url: "db/connection.php", //"db/collaborators.php"
+            method: "GET",
+            params: {
+                request: 6, //0
+                department_id: $scope.department.departamento_id
+            }
+        }).then(function (response){
+            $scope.collaborators = response.data;
+        }, function (response){});
+    }
+    
+    getCollaborators();
 
 }
 

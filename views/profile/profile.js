@@ -25,26 +25,43 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
     $scope.totalEvents = {};
     $scope.remainingMonths = [];
 
+    $scope.newReport = function(month){
+        $('#remaining-months').modal('close');
+        localStorage.setItem('currentMonth', JSON.stringify(month));
+        $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre + '/' + month.mes);
+        /*if($scope.finalGrades.some(grade => grade.mes_id === month_id)){
+            $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);
+        }*/
+    }
+
+    $scope.changeMonth = function(selected){
+        $scope.selectedMonth = selected;
+        if($scope.selectedMonth != '2017'){
+            getDataPerMonth(7);
+            getDataPerMonth(11);
+            getDataPerMonth(12);
+        }
+    }
+
     var getFinalGrades = function(){
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php", //profile
             method: "GET",
             params: {
-                request: 16,
+                request: 16,//0
                 collaborator_id: collaborator_id
             }
         }).then(function (response){
             $scope.finalGrades = response.data;
-            console.log($scope.finalGrades);
         }, function (response){});
     }
 
     var getTotalEvents = function(month_id){
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php", //profile
             method: "GET",
             params: {
-                request: 17,
+                request: 17,//1
                 collaborator_id: collaborator_id,
                 month_id: month_id
             }
@@ -68,20 +85,39 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
 
     var getTotalGrades = function(){
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php",//profile
             method: "GET",
             params: {
                 collaborator_id: collaborator_id,
-                request: 14
+                request: 14 //2
             }
         }).then(function (response){
             $scope.totalGrades = response.data;
         }, function (response){});
     }
 
+    var formatNumber = function(){
+        for(var i=0; i < $scope.grades.length; i++){
+            var object = $scope.grades[i];
+            switch($scope.grades[i]["unidad_id"]){
+                case '6':
+                    object["minimo"] = object["minimo"] + "%";
+                    object["meta"] = object["meta"] + "%";
+                    object["real_obtenido"] = object["real_obtenido"] + "%";
+                    break;
+
+                case '8':
+                    object["minimo"] = $rootScope.formatMoney(object["minimo"],2);
+                    object["meta"] = $rootScope.formatMoney(object["meta"],2);
+                    object["real_obtenido"] = $rootScope.formatMoney(object["real_obtenido"],2);
+                    break;
+            }
+        }
+    }
+
     var getDataPerMonth = function(request){
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php", //profile
             method: "GET",
             params: {
                 collaborator_id: collaborator_id,
@@ -90,24 +126,27 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             }
         }).then(function (response){
             switch(request){
-                case 7:
+                case 7://3
                     $scope.grades = response.data;
+                    formatNumber();
+                    console.log($scope.grades);
                     break;
-                case 11:
+                case 11://4
                     $scope.events = response.data;
                     break;
-                case 12:
+                case 12://5
                     $scope.final = response.data;
             }
+            
         }, function (response){});
     }
 
     var getTypes = function(area_id){
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php",//modifiers
             method: "GET",
             params: {
-                request: 8,
+                request: 8,//1
                 area_id: area_id
             }
         }).then(function (response){
@@ -131,11 +170,11 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
 
     var getIndicators = function(){
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php",//profile
             method: "GET",
             params: {
                 collaborator_id: collaborator_id,
-                request: 13
+                request: 13//6
             }
         }).then(function (response){
             $scope.indicators = response.data;
@@ -147,21 +186,12 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }, function (response){});
     }
 
-    $scope.changeMonth = function(selected){
-        $scope.selectedMonth = selected;
-        if($scope.selectedMonth != '2017'){
-            getDataPerMonth(7);
-            getDataPerMonth(11);
-            getDataPerMonth(12);
-        }
-    }
-
     $http({
-        url: "db/connection.php",
+        url: "db/connection.php",//profile
         method: "GET",
         params: {
             collaborator_id: collaborator_id,
-            request: 10
+            request: 10//7
         }
     }).then(function (response){
         $scope.months = response.data;
@@ -175,25 +205,15 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
      }, function (response){});
 
     $http({
-        url: "db/connection.php",
+        url: "db/connection.php",//profile
         method: "GET",
         params: {
             collaborator_id: collaborator_id,
-            request: 20
+            request: 20//8
         }
     }).then(function (response){
         $scope.remainingMonths = response.data;
     }, function (response){});
-    
-
-    $scope.newReport = function(month){
-        $('#remaining-months').modal('close');
-        localStorage.setItem('currentMonth', JSON.stringify(month));
-        $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre + '/' + month.mes);
-        /*if($scope.finalGrades.some(grade => grade.mes_id === month_id)){
-            $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);
-        }*/
-    }
 
     if($scope.current.mes != null){
         getIndicators();

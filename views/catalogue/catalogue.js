@@ -10,14 +10,65 @@ function CatalogueController($scope,$location,$http) {
     $scope.indicators = [];
     //$scope.selectedRole = [];
     //$scope.selectedArea = [];
-    
+
+    $scope.form = {
+        indicator: "",
+        area_id: "",
+        role_id: "",
+        unit: "",
+        frequency: "",
+        source: "",
+        department_id: $scope.department.departamento_id,
+        request: 5 //0
+    }
+
+    $scope.newIndicator = function(){
+        for(var key in $scope.form){
+            if($scope.form[key] === ""){
+                Materialize.toast("Completar formulario",3000);
+                return;
+            }
+        }
+        $http({
+            url: "db/connection.php", //"db/catalogue.php"
+            method: "GET",
+            params: $scope.form
+        }).then(function (response){
+            getData();
+            Materialize.toast('Enviado', 1000,'',function(){$('#modal1').modal('close')});
+        }, function (response){});
+    }
+
+    $scope.activateModal = function(){
+        $('#unit').autocomplete({
+            data: searchAttribute('unidad'),
+            onAutocomplete: function(val) {
+                $scope.form.unit = val;
+            },
+        });
+
+        $('#source').autocomplete({
+            data: searchAttribute('fuente'),
+            onAutocomplete: function(val) {
+                $scope.form.source = val;
+            },
+        });
+
+        $('#frequency').autocomplete({
+            data: frequencies,
+            onAutocomplete: function(val) {
+                $scope.form.frequency = val;
+            },
+        });
+    }
+
     var getFrequencies = function(){
         var data = {};
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php",//catalogue
             method: "GET",
             params: {
-                request: 4
+                request: 4//2
             }
         }).then(function (response){
             for(var i=0; i<response.data.length; i++){
@@ -26,8 +77,6 @@ function CatalogueController($scope,$location,$http) {
         }, function (response){});
         return data;
     }
-
-    var frequencies = getFrequencies();
 
     var searchAttribute = function(attribute){
         var visited = [];
@@ -52,68 +101,13 @@ function CatalogueController($scope,$location,$http) {
         }
         return data;
     }
-    
-    $scope.activateModal = function(){
-        $('#unit').autocomplete({
-            data: searchAttribute('unidad'),
-            onAutocomplete: function(val) {
-                $scope.form.unit = val;
-            },
-        });
-
-        $('#source').autocomplete({
-            data: searchAttribute('fuente'),
-            onAutocomplete: function(val) {
-                $scope.form.source = val;
-            },
-        });
-
-        $('#frequency').autocomplete({
-            data: frequencies,
-            onAutocomplete: function(val) {
-                $scope.form.frequency = val;
-            },
-        });
-    }
-
-    $(document).ready(function() {
-        $('.modal').modal();
-    });
-
-    $scope.form = {
-        indicator: "",
-        area_id: "",
-        role_id: "",
-        unit: "",
-        frequency: "",
-        source: "",
-        department_id: $scope.department.departamento_id,
-        request: 5
-    }
-
-    $scope.newIndicator = function(){
-        for(var key in $scope.form){
-            if($scope.form[key] === ""){
-                Materialize.toast("Completar formulario",3000);
-                return;
-            }
-        }
-        $http({
-            url: "db/connection.php",
-            method: "GET",
-            params: $scope.form
-        }).then(function (response){
-            getData();
-            Materialize.toast('Enviado', 1000,'',function(){$('#modal1').modal('close')});
-        }, function (response){});
-    }
 
     var getData = function(){
         $http({
-            url: "db/connection.php",
+            url: "db/connection.php",//"db/catalogue.php"
             method: "GET",
             params: {
-                request: 3,
+                request: 3,//1
                 department_id: $scope.department.departamento_id
             }
         }).then(function (response){
@@ -121,7 +115,12 @@ function CatalogueController($scope,$location,$http) {
             $scope.roles = searchAttribute('rol');
         }, function (response){});
     }
+    
+    $(document).ready(function() {
+        $('.modal').modal();
+    });
 
+    var frequencies = getFrequencies();
     getData();
 }
 

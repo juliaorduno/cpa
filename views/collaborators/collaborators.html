@@ -15,10 +15,39 @@
                         <p class="light" ng-if="c.mes === null">No se ha registrado calificación</p>
                     </a>
                 </div>
+                <a class='btn-flat' data-target='new-collaborator' ng-click="activateModal()" modal>Agregar nuevo</a>
             </div>
           </div>
         </div>
       </div>
+      <div id='new-collaborator' class='modal'>
+            <div class="modal-content">
+                <h5>Nuevo Colaborador</h5>
+                <!-- FORM -->
+                <div class="row">
+                    <div input-field class="col s12 m6">
+                        <input type="text" ng-model="form.name" length="50">
+                        <label>Nombre</label>
+                    </div>
+                    <div input-field class="col s12 m6">
+                        <input type="text" ng-model="form.lastName" length="50">
+                        <label>Apellido</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div input-field class="col s12 m12">
+                        <select class="" 
+                            ng-model="form.role_id" 
+                            ng-options="role.rol_id as role.rol for role in roles"
+                            material-select watch>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="modal-action waves-effect waves-green btn-flat" ng-click="insertCollaborator()">Aceptar</a>
+                    <a class="modal-action modal-close waves-effect waves-green btn-flat">Cancelar</a>
+                </div>
+            </div>
 </main>
 
 
