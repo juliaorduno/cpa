@@ -12,9 +12,23 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
     $scope.indicators = [];
     $scope.selectOptions = [];
     $scope.selectedIndicator = "";
+    $scope.final = {};
 
     $scope.removeIndicator = function(indicator){
-         var index = -1;
+        $http({
+            url: "db/connection.php",//reportcard
+            method: "GET",
+            params: {
+                collaborator_id: collaborator_id,
+                month_id: $scope.currentMonth.mes_id,
+                indicator_id: indicator,
+                request: 25//0
+            }
+        }).then(function (response){
+            console.log(response.data);
+            getIndicators();
+        }, function (response){});
+         /*var index = -1;
           var comArr = $scope.area1Indicators;
           for( var i = 0; i < comArr.length; i++ ) {
                 if( comArr[i].indicator === indicator ) {
@@ -26,27 +40,42 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
           if( index === -1 ) {
                alert( "Something gone wrong" );
           }
-          $scope.area1Indicators.splice( index, 1 );
+          $scope.area1Indicators.splice( index, 1 );*/
+    }
+
+    $scope.clear = function(){
+        $http({
+            url: "db/connection.php",//reportcard
+            method: "GET",
+            params: {
+                collaborator_id: collaborator_id,
+                month_id: $scope.currentMonth.mes_id,
+                request: 26//0
+            }
+        }).then(function (response){
+            console.log(response.data);
+            getIndicators();
+        }, function (response){});
     }
 
     $scope.setValue = function(index){
+        formatNumber(index);
         var object = $scope.indicators[index];
-        object['porcentaje'] = Number(Math.round(object['real']/object['meta']*100+'e2')+'e-2');
+        object['porcentaje'] = Number(Math.round(object['real_obtenido']/object['meta']*100+'e2')+'e-2');
         object['calificacion'] = Number(Math.round(object['peso']*object['porcentaje']/100+'e2')+'e-2');
         insertGrade(index);
-        formatNumber(index);
     }
 
     $scope.setSelected = function(selected){
         $scope.selectedIndicator = selected;
     }
 
-    $scope.newIndicator = function(){
+    $scope.newIndicator = function(selected){
         var newObject = {
-            indicador_id: $scope.selectedIndicator,
+            indicador_id: selected,
             meta: 0,
             minimo: 0,
-            real: 0,
+            real_obtenido: 0,
             peso: 0,
             porcentaje: 0,
             calificacion: 0
@@ -66,20 +95,42 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
         }
     };*/
 
+    var getFinal = function(){
+        $http({
+            url: "db/connection.php",//reportcard
+            method: "GET",
+            params: {
+                collaborator_id: collaborator_id,
+                month_id: $scope.currentMonth.mes_id,
+                request: 24//0
+            }
+        }).then(function (response){
+            $scope.final = response.data;
+            console.log($scope.final);
+        }, function (response){});
+    }
+
     var formatNumber = function(index){
         var object = $scope.indicators[index];
         switch(object["unidad_id"]){
-            case 6:
-                object['displayMeta'] = object['meta'] + '%';
-                object['displayMinimo'] = object['minimo'] + '%';
-                object['displayReal'] = object['real'] + '%';
+            case '6':
+                object['meta'] = object['format'] ? object['meta'].replace('%',''): object['meta'] + '%';
+                object['minimo'] = object['format'] ? object['minimo'].replace('%',''):object['minimo'] + '%';
+                object['real_obtenido'] = object['format'] ? object['real_obtenido'].replace('%',''):object['real_obtenido'] + '%';
                 break;
-            case 8:
-                object["displayMinimo"] = $rootScope.formatMoney(object["minimo"],2);
-                object["displayMeta"] = $rootScope.formatMoney(object["meta"],2);
-                object["displayReal"] = $rootScope.formatMoney(object["real"],2);
+            case '8':
+                object["minimo"] = object['format'] ? object['minimo'].replace('$',''): $rootScope.formatMoney(object["minimo"],2);
+                object["meta"] = object['format'] ? object['meta'].replace('$',''):$rootScope.formatMoney(object["meta"],2);
+                object["real_obtenido"] = object['format'] ? object['real_obtenido'].replace('$',''):$rootScope.formatMoney(object["real_obtenido"],2);
+                if(object['format']){
+                    object["minimo"] = object['minimo'].replace(',','');
+                    object["meta"] = object['meta'].replace(',','');
+                    object["real_obtenido"] = object['real_obtenido'].replace(',','');
+                }
+                
                 break;
         }
+        object['format'] = !object['format'];
     }
 
     var getIndicators = function(){
@@ -93,20 +144,21 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
             }
         }).then(function (response){
             $scope.indicators = response.data;
+            getSelectOptions();
+            getFinal();
             if($scope.indicators.length > 0){
+                $scope.indicators['format'] = false;
                 for(var i=0; i<$scope.indicators.length; i++){
-                    $scope.indicators[i]['real'] = 0;
-                    $scope.indicators[i]['porcentaje'] = 0;
-                    $scope.indicators[i]['calificacion'] = 0;
-                    $scope.indicators[i]['displayReal'] = 0;
-                    $scope.indicators[i]['displayMeta'] = 0;
-                    $scope.indicators[i]['displayMinimo'] = 0;
+                    if(!$scope.indicators[i].hasOwnProperty('calificacion')){
+                        $scope.indicators[i]['real_obtenido'] = 0;
+                        $scope.indicators[i]['porcentaje'] = 0;
+                        $scope.indicators[i]['calificacion'] = 0;
+                    }
                     formatNumber(i);
-                }
+                }    
             } else{
                 $scope.indicators = [];
             }
-            
         }, function (response){});
     }
 
@@ -115,13 +167,14 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
         form['request'] = 19;//1
         form['month_id'] = $scope.currentMonth.mes_id;
         form['collaborator_id'] = collaborator_id;
-
         $http({
             url: "db/connection.php",//reportcard
             method: "GET",
             params: form
         }).then(function (response){
-            //console.log(response.data);
+            console.log(response.data);
+            formatNumber($scope.indicators.length-1);
+            getFinal();
         }, function (response){});
     }
 
@@ -148,7 +201,6 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
     });
 
     getIndicators();
-    getSelectOptions();
 
 }
 

@@ -422,6 +422,15 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 if( sqlsrv_execute( $stmt ) === false ) {
                     die( print_r( sqlsrv_errors(), true));
                 }
+
+                $sql = "SELECT ci.indicador_id, indicador, meta, minimo, peso, area_id, real_obtenido, calificacion, porcentaje, unidad_id 
+                        FROM CPA_Indicador i, CPA_CalificacionIndicador ci, (
+						SELECT fechaInicio FROM CPA_CalificacionFinal WHERE mes_id = '$month_id' AND empleado_id = $collaborator_id) sq
+                        WHERE ci.indicador_id = i.indicador_id
+                        AND mes_id = '$month_id'
+                        AND empleado_id = $collaborator_id
+                        AND fechaInicio IS NOT NULL";
+                $stmt = sqlsrv_query( $conn, $sql);
                 
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
@@ -442,7 +451,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $indicator_id = $_GET["indicador_id"];
                 $meta = $_GET["meta"];
                 $minimo = $_GET["minimo"];
-                $real_obtenido = $_GET["real"];
+                $real_obtenido = $_GET["real_obtenido"];
                 $peso = $_GET["peso"];
                 $porcentaje = $_GET["porcentaje"];
                 $calificacion = $_GET["calificacion"];
@@ -540,6 +549,55 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 if(!empty($rows)){
                     echo json_encode($rows,JSON_UNESCAPED_UNICODE);
                 }
+                break;
+
+            //Get final per report
+            case 24:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $sql = "SELECT parcial, final 
+                        FROM CPA_CalificacionFinal 
+                        WHERE empleado_id = $collaborator_id AND mes_id = '$month_id'";
+                $stmt = sqlsrv_query( $conn, $sql);
+                $row = sqlsrv_fetch_object( $stmt);
+                sqlsrv_free_stmt( $stmt);
+                if($row != null){
+                    echo json_encode($row,JSON_UNESCAPED_UNICODE);
+                }
+                break;
+
+            //Remove indicator
+            case 25:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $indicator_id = $_GET["indicator_id"];
+                $sql = "DELETE FROM CPA_CalificacionIndicador
+                        WHERE empleado_id = ? AND mes_id = ? and indicador_id = ?";
+                $params = array($collaborator_id,"$month_id",$indicator_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            case 26:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $sql = "DELETE FROM CPA_CalificacionIndicador
+                        WHERE empleado_id = ? AND mes_id = ?";
+                $params = array($collaborator_id,"$month_id"); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
                 break;
         }
         sqlsrv_close( $conn );

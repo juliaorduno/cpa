@@ -106,3 +106,8 @@ caption{
 #new-ind-report{
   margin-top: 20px;
 }
+
+table tbody tr td input{
+  border: 0 !important;
+  margin: 0 !important;
+}

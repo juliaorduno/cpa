@@ -8,7 +8,7 @@
                     <div class="col m6">
                         <h3>Boleta de {{current.nombre}}</h3>
                         <h5 class="grey-text text-darken-1">{{current.rol}}</h5>
-                        <a class="btn-flat waves-effect waves-teal">En blanco</a>
+                        <a class="btn-flat waves-effect waves-teal" ng-click="clear()">En blanco</a>
                     </div>
                     <div class="col m3"></div>
                     <div class="col m3">
@@ -26,7 +26,7 @@
                     <div id="areas" class="col s12">
                         <div class="section" ng-repeat="area in areas track by $index" ng-if="$index < 3">
                             <h6>{{area.area}}</h6>
-                            <table class="responsive-table highlight">
+                            <table class="responsive-table striped bordered">
                                 <thead>
                                     <tr>
                                         <th>Indicador</th>
@@ -36,40 +36,38 @@
                                         <th>Peso</br>Específico</th>
                                         <th>Porcentaje de</br>Cumplimiento</th>
                                         <th>Calificación</th>
-                                        <th></th>
+                                        <th> </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="i in indicators track by $index"  ng-if="i.area_id === area.id" ng-model-options="{ updateOn: 'blur' }">
-                                        <td>{{i.indicador}}</td> 
-                                        <td width="70px"><input id="real" type="text" class="validate" ng-model="i.meta" ng-change="setValue($index)"></td>
-                                        <td width="70px"><input id="real" type="text" class="validate" ng-model="i.minimo" ng-change="setValue($index)"></td>
+                                        <td width="400px">{{i.indicador}}</td> 
+                                        <td><input id="meta" type="text" ng-model="i.meta" ng-change="setValue($index)"></td>
+                                        <td><input id="minimo" type="text" ng-model="i.minimo" ng-change="setValue($index)"></td>
                                         <!--<td contenteditable="true">{{i.meta}}</td>
                                         <td contenteditable="true">{{i.minimo}}</td>
                                         <td contenteditable ng-model="i.real">{{i.real}}</td>-->
-                                        <td width="70px"><input id="real" type="text" class="validate" ng-model="i.real" ng-change="setValue($index)"></td>
-                                        <td contenteditable="true">{{i.peso}}</td>
+                                        <td><input id="realobt" type="text" ng-model="i.real_obtenido" ng-change="setValue($index)"></td>
+                                        <td><input id="peso" type="text" ng-model="i.peso" ng-change="setValue($index)"></td>
+                                        <!--<td contenteditable="true" ng-change="change()" ng-model="i.peso">{{i.peso}}</td>-->
                                         <td contenteditable="false">{{i.porcentaje}}</td>
                                         <td contenteditable="false">{{i.calificacion}}</td>
-                                        <!--<td><a href="" class="delete-indicator"><i class="material-icons">remove</i></a></td>-->
+                                        <td><a href="#" class="delete-indicator" ng-click="removeIndicator(i.indicador_id)"><i class="material-icons">remove</i></a></td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="row">
                                 <div input-field class="col m4">
-                                    <select ng-model="selectedIndicator" ng-change="setSelected(selectedIndicator)" material-select watch>
+                                    <select ng-model="selectedIndicator" ng-change="newIndicator(selectedIndicator)" material-select watch>
                                         <option ng-repeat="i in selectOptions"
                                                 ng-if="i.area_id === area.id"
                                                 value="{{i.indicador_id}}">{{i.indicador}}</option>
                                     </select>
                                     
                                 </div>
-                                <div class="col m4">
-                                    <a id="new-ind-report" class="btn-floating btn-flat waves-effect waves-light" ng-click="newIndicator()"><i class="material-icons grey lighten-1">add</i></a>
-                                </div>
+                                <div class="col m4"></div>
                                 <div class="col m4"></div>
                             </div>
-                            <div class="divider"></div>
                         </div>
                     </div>
                     <div id="penalizations" class="col s12">
@@ -78,10 +76,8 @@
                     <div id="extras" class="col s12">Test 3</div>
                     
                 </div>
-                <h6 style="font-size: 17px; margin-left: 30px" class="grey-text text-darken-1">Calificación Parcial: </h6>
-            </div>
-            <div class="progress blue lighten-3">
-                <div class="determinate blue darken-2" style="width: 70%"></div>
+                <h6 style="font-size: 17px; margin-left: 30px" class="grey-text text-darken-1">Calificación Parcial: {{final.parcial}}</h6>
+                <h6 style="font-size: 17px; margin-left: 30px" class="grey-text text-darken-1">Calificación Final: {{final.final}} </h6>
             </div>
             <!--<a class="waves-effect waves-teal btn right" ng-click="save()">Guardar</a>-->
         </div>
