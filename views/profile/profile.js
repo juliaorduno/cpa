@@ -68,6 +68,8 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }).then(function (response){
             month_id = month_id.toString();
             $scope.totalEvents[month_id] = response.data;
+            
+            console.log(response.data);
             var extras = false;
             var pen = false;
             if(response.data != ""){
@@ -77,7 +79,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                     extras = true;
                 }
             }
-            
             $scope.extraPoints[month_id] = extras;
             $scope.penalizations[month_id] = pen;
         }, function (response){});
@@ -129,7 +130,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                 case 7://3
                     $scope.grades = response.data;
                     formatNumber();
-                    console.log($scope.grades);
+                    //console.log($scope.grades);
                     break;
                 case 11://4
                     $scope.events = response.data;

@@ -256,16 +256,16 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             case 11:
                 $collaborator_id = $_GET["collaborator_id"];
                 $month_id = $_GET["month_id"];
-                $sql = "SELECT area_id, evento, unidad, fuente
+                $sql = "SELECT area_id, evento, sq.evento_id, unidad, fuente, cantidad, sq.tipo_id, t.puntos
                         FROM CPA_TipoModificador AS t, (
-                            SELECT evento, unidad, fuente, tipo_id
+                            SELECT evento, m.evento_id, unidad, fuente, tipo_id, cantidad
                             FROM CPA_Modificador AS m, CPA_Evento AS e, CPA_Fuente AS f, CPA_Unidad AS u
                             WHERE empleado_id = $collaborator_id AND mes_id = '$month_id'
                                 AND m.evento_id = e.evento_id AND m.fuente_id = f.fuente_id 
                                 AND e.unidad_id = u.unidad_id
                                 AND EXISTS (
-                                    SELECT * FROM CPA_CalificacionFinal f WHERE fechaFin IS NOT NULL 
-                                    AND m.empleado_id = f.empleado_id AND m.mes_id = f.mes_id)) AS sq
+                                    SELECT * FROM CPA_CalificacionFinal f
+                                    WHERE m.empleado_id = f.empleado_id AND m.mes_id = f.mes_id)) AS sq
                         WHERE t.tipo_id = sq.tipo_id";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
@@ -385,7 +385,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             case 17:
                 $collaborator_id = $_GET["collaborator_id"];
                 $month_id = $_GET["month_id"];
-                $sql = "SELECT count(m.evento_id) AS eventos, tipo, area_id
+                $sql = "SELECT sum(m.cantidad) AS eventos, tipo, area_id
                         FROM CPA_Modificador m, CPA_Evento e, CPA_TipoModificador t, CPA_CalificacionFinal f
                         WHERE m.evento_id = e.evento_id
                         AND m.mes_id = '$month_id'
@@ -508,7 +508,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                         WHERE indicador_id not IN (
                             SELECT indicador_id FROM CPA_CalificacionIndicador ci
 	                        WHERE empleado_id = $collaborator_id 
-                            AND mes_id = '$month_id' AND rol_id = $role_id AND activo = 'SI')";
+                            AND mes_id = '$month_id' AND activo = 'SI')";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
@@ -523,10 +523,10 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             case 22:
                 $name = $_GET["name"];
                 $lastName = $_GET["lastName"];
-                $role_id = $_GET["role_id"];
+                $role = $_GET["role"];
                 $department_id = $_GET["department_id"];
-                $sql = "INSERT INTO CPA_Empleado(apellido, nombre, rol_id, departamento_id) VALUES (?,?,?,?)";
-                $params = array("$lastName","$name",$role_id,$department_id); 
+                $sql = "EXEC CPA_InsertarEmpleado @nombre = ?, @apellido = ?, @rol = ?, @dpt = ?";
+                $params = array("$name","$lastName","$role",$department_id); 
                 $stmt = sqlsrv_query( $conn, $sql, $params);
                 if( !$stmt ) {
                     echo 'No';
@@ -584,6 +584,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 sqlsrv_free_stmt($stmt);
                 break;
 
+            //Clear report card
             case 26:
                 $collaborator_id = $_GET["collaborator_id"];
                 $month_id = $_GET["month_id"];
@@ -599,6 +600,81 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 }
                 sqlsrv_free_stmt($stmt);
                 break;
+
+            //Available events for reportcard
+            case 27:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $department_id = $_GET["department_id"];
+                $type_id = $_GET["type_id"];
+                $sql = "SELECT evento_id, evento FROM CPA_Evento WHERE evento_id NOT IN (
+                            SELECT evento_id FROM CPA_Modificador 
+                            WHERE empleado_id = $collaborator_id AND mes_id = '$month_id') 
+                        AND (departamento_id = $department_id OR departamento_id is null and tipo_id = $type_id)";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
+                break;
+            
+            //Get frequencies from modificators
+            case 28:
+                $department_id = $_GET["department_id"];
+                $sql = "SELECT fuente FROM CPA_Fuente f, CPA_Modificador e 
+                        WHERE f.departamento_id = $department_id AND f.fuente_id = e.fuente_id";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
+                break;
+
+            //Insert modificator
+            case 29:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $event_id = $_GET["event_id"];
+                $department_id = $_GET["department_id"];
+                $source = $_GET["source"];
+                $sql = "EXEC CPA_InsertarModificador @evento_id = ?, @mes_id = ?, @empleado_id = ?, @fuente = ?,
+                        @dpto_id = ?";
+                $params = array($event_id,"$month_id",$collaborator_id, "$source",$department_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Update modifier quantity
+            case 30:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $event_id = $_GET["event_id"];
+                $quantity = $_GET["quantity"];
+                $sql = "UPDATE CPA_Modificador SET cantidad = ?
+                        WHERE empleado_id = ? AND mes_id = ? AND evento_id = ?";
+                $params = array($quantity,$collaborator_id,"$month_id",$event_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
         }
         sqlsrv_close( $conn );
     }

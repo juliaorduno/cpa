@@ -13,7 +13,7 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
         name: "",
         lastName: "",
         department_id: $scope.department.departamento_id,
-        role_id: null,
+        role: "",
         request: 22
     }
 
@@ -34,6 +34,7 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
     }
 
     $scope.activateModal = function(){
+        var data = {};
         $http({
             url: "db/connection.php", //"db/collaborators.php"
             method: "GET",
@@ -43,6 +44,15 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
             }
         }).then(function (response){
             $scope.roles = response.data;
+            for(var i=0; i<$scope.roles.length; i++){
+                data[$scope.roles[i].rol] =  null;
+            }
+            $('#role-ac').autocomplete({
+                data: data,
+                onAutocomplete: function(val) {
+                    //$scope.form.role = val;
+                },
+            });
         }, function (response){});
     }
 

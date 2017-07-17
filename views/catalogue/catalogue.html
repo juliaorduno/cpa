@@ -45,22 +45,22 @@
                                 <div class="input-field col m6">
                                     <select ng-model="form.role_id" class="validate" material-select watch>
                                         <option value="" disabled selected>Seleccionar rol</option>
-                                        <option ng-repeat="role in roles" value={{role.id}}>{{role.name}}</option>
+                                        <option ng-repeat="role in roles" value={{role.rol_id}}>{{role.rol}}</option>
                                     </select>
                                     <label>Rol</label>
                                 </div>
                                 <div input-field class="col s12 m6" class="validate">
-                                        <input type="text" id="unit" class="autocomplete">
+                                        <input type="text" id="unit" class="autocomplete" ng-model="form.unit">
                                         <label for="unit">Unidad</label>
                                 </div>
                             </div>
                             <div class="row">
                                <div input-field class="col s12 m6" class="validate">
-                                        <input type="text" id="source" class="autocomplete">
+                                        <input type="text" id="source" class="autocomplete" ng-model="form.source">
                                         <label for="source">Fuente de Evidencia</label>
                                 </div>
                                 <div input-field class="col s12 m6" class="validate">
-                                        <input type="text" id="frequency" class="autocomplete">
+                                        <input type="text" id="frequency" class="autocomplete" ng-model="form.frequency">
                                         <label for="frequency">Periodicidad</label>
                                 </div>
                             </div>
@@ -95,7 +95,7 @@
                 </tr>
                 </tbody>
             </table>
-            <a data-target="modal1" href="#" ng-click="activateModal()">Agregar nuevo</a modal>
+            <a class='btn-flat' data-target="modal1" href="#" ng-click="activateModal()">Agregar nuevo</a modal>
           </div>
         </div>
       </div>

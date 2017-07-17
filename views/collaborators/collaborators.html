@@ -35,12 +35,14 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div input-field class="col s12 m12">
-                        <select class="" 
+                    <div input-field class="col s12 m12" class="validate">
+                        <!--<select class="" id="role-ac" 
                             ng-model="form.role_id" 
                             ng-options="role.rol_id as role.rol for role in roles"
                             material-select watch>
-                        </select>
+                        </select>-->
+                        <input type="text" id="role-ac" class="autocomplete" ng-model="form.role">
+                        <label for="role-ac">Puesto</label>
                     </div>
                 </div>
                 <div class="modal-footer">

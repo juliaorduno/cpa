@@ -8,6 +8,7 @@ function CatalogueController($scope,$location,$http) {
 
     $scope.department = JSON.parse(localStorage.getItem('department'));
     $scope.indicators = [];
+    $scope.roles = [];
     //$scope.selectedRole = [];
     //$scope.selectedArea = [];
 
@@ -42,24 +43,31 @@ function CatalogueController($scope,$location,$http) {
     $scope.activateModal = function(){
         $('#unit').autocomplete({
             data: searchAttribute('unidad'),
-            onAutocomplete: function(val) {
-                $scope.form.unit = val;
-            },
+            onAutocomplete: function(val) {},
         });
 
         $('#source').autocomplete({
             data: searchAttribute('fuente'),
-            onAutocomplete: function(val) {
-                $scope.form.source = val;
-            },
+            onAutocomplete: function(val) {},
         });
 
         $('#frequency').autocomplete({
             data: frequencies,
-            onAutocomplete: function(val) {
-                $scope.form.frequency = val;
-            },
+            onAutocomplete: function(val) {},
         });
+    }
+
+    var getRoles = function(){
+        $http({
+            url: "db/connection.php",//catalogue
+            method: "GET",
+            params: {
+                department_id: $scope.department.departamento_id,
+                request: 23//2
+            }
+        }).then(function (response){
+            $scope.roles = response.data;
+        }, function (response){});
     }
 
     var getFrequencies = function(){
@@ -112,7 +120,7 @@ function CatalogueController($scope,$location,$http) {
             }
         }).then(function (response){
             $scope.indicators = response.data;
-            $scope.roles = searchAttribute('rol');
+            getRoles();
         }, function (response){});
     }
     
