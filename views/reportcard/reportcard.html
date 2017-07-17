@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col m6">
                         <h3>Boleta de {{current.nombre}}</h3>
-                        <a class="btn-flat waves-effect waves-teal" ng-click="clear()">limpiar boleta</a>
+                        <a class="btn-flat waves-effect waves-teal" ng-click="clearCard()">limpiar boleta</a>
                     </div>
                     <div class="col m3"></div>
                     <div class="col m3">
@@ -71,36 +71,8 @@
                             </div>
                         </div>
                     </div>
-                    <div id="penalizations" class="col s12">
-                        <div class="section" ng-repeat="type in types track by $index">
-                            <h6>{{type.tipo}}</h6>
-                            <table class="responsive-table striped bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Descripción</th>
-                                        <th>Unidad</th>
-                                        <th>Fuente</th>
-                                        <th>Cantidad</th>
-                                        <th>Puntos</th>
-                                        <th> </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="m in modifiers track by $index"  ng-if="m.tipo_id === type.tipo_id"  ng-model-options="{ updateOn: 'blur' }">
-                                        <td width="400px">{{m.evento}}</td> 
-                                        <td contenteditable="false">{{m.unidad}}</td>
-                                        <td contenteditable="false">{{m.fuente}}</td>
-                                        <td><input id="cantidad" type="text" ng-model="m.cantidad" ng-change="insertQuantity($index)"></td>
-                                        <td contenteditable="false">{{m.puntos}}</td>
-                                        <td><a href="#" class="delete-indicator"><i class="material-icons">remove</i></a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <a href="#">Incidente nuevo</a>
-                        </div>
-                    </div>
-                    <div id="extras" class="col s12">
-                        <div class="section" ng-repeat="type in types track by $index">
+                    <div id="{{a.name}}" class="col s12" ng-repeat="a in otherAreas">
+                        <div class="section" ng-repeat="type in types">
                             <h6>{{type.tipo}}</h6>
                             <table class="responsive-table striped bordered">
                                 <thead>
@@ -114,47 +86,58 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="m in modifiers" ng-if="m.tipo_id === type.tipo_id" ng-model-options="{ updateOn: 'blur' }">
+                                    <tr ng-repeat="m in modifiers track by $index" ng-if="m.tipo_id === type.tipo_id" ng-model-options="{ updateOn: 'blur' }">
                                         <td width="400px">{{m.evento}}</td> 
                                         <td contenteditable="false">{{m.unidad}}</td>
                                         <td contenteditable="false">{{m.fuente}}</td>
                                         <td><input id="cantidad" type="text" ng-model="m.cantidad" ng-change="insertQuantity($index)"></td>
                                         <td contenteditable="false">{{m.puntos*m.cantidad}}</td>
-                                        <td><a href="#" class="delete-indicator"><i class="material-icons">remove</i></a></td>
+                                        <td><a href="#" class="delete-indicator"><i class="material-icons" ng-click="removeModifier(m.evento_id)">remove</i></a></td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <a class="btn-flat" data-target='add-event' ng-click="activateModal(type.tipo_id)" modal>Evento nuevo</a>
+                            <a class="btn-flat" data-target='add-event-{{a.name}}' ng-click="activateModal(type.tipo_id)" modal>{{a.unit}} nuevo</a>
+                        </div>
+                        <div id="add-event-{{a.name}}" class='modal bottom-sheet add-event'>
+                            <div class="modal-content">
+                                <h5>{{a.unit}} Nuevo</h5>
+                                <div class="row">
+                                    <div class="col s12 m6">
+                                        <div input-field>
+                                            <select
+                                            ng-options="e.evento_id as e.evento for e in selectEvents"
+                                            ng-model="selectedEvent.event_id"
+                                            material-select watch>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div input-field class="col s12 m6" class="validate">
+                                        <input type="text" class="autocomplete source-ne" ng-model="selectedSource.source">
+                                        <label for="source-ne">Fuente de Evidencia</label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a class="modal-action waves-effect waves-green btn-flat" ng-click="newModificator()">Aceptar</a>
+                                    <a class="modal-action modal-close waves-effect waves-green btn-flat">Cancelar</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <h6 style="font-size: 17px; margin-left: 30px" class="grey-text text-darken-1">Calificación Parcial: {{final.parcial}}</h6>
                 <h6 style="font-size: 17px; margin-left: 30px" class="grey-text text-darken-1">Calificación Final: {{final.final}} </h6>
             </div>
-            <!--<a class="waves-effect waves-teal btn right" ng-click="save()">Enviar</a>-->
-        </div>
-    </div>
-    <div id='add-event' class='modal bottom-sheet'>
-        <div class="modal-content">
-            <h5>Evento Nuevo</h5>
-            <div class="row">
-                <div class="col s12 m6">
-                    <div input-field>
-                        <select
-                        ng-options="e.evento_id as e.evento for e in selectEvents"
-                        ng-model="selectedEvent.event_id"
-                        material-select watch>
-                        </select>
+            <a class="waves-effect waves-teal btn right" id="send-btn" data-target="send-report" modal>Enviar</a>
+            <div id="send-report" class='modal'>
+                <div class="modal-content">
+                    <h6>¿Estás seguro que deseas enviar la boleta? Después no será posible realizar modificaciones.</h6>
+                    <div class="row">
+                    </div>
+                    <div class="modal-footer">
+                        <a class="modal-action waves-effect waves-green btn-flat" ng-click="send()">Sí</a>
+                        <a class="modal-action modal-close waves-effect waves-green btn-flat">No</a>
                     </div>
                 </div>
-                <div input-field class="col s12 m6" class="validate">
-                    <input type="text" id="source-ne" class="autocomplete" ng-model="selectedSource.source">
-                    <label for="source-ne">Fuente de Evidencia</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <a class="modal-action waves-effect waves-green btn-flat" ng-click="newModificator()">Aceptar</a>
-                <a class="modal-action modal-close waves-effect waves-green btn-flat">Cancelar</a>
             </div>
         </div>
     </div>

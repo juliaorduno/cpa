@@ -592,6 +592,16 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                         WHERE empleado_id = ? AND mes_id = ?";
                 $params = array($collaborator_id,"$month_id"); 
                 $stmt = sqlsrv_query( $conn, $sql, $params);
+
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }
+                
+                $sql = "DELETE FROM CPA_Modificador
+                        WHERE empleado_id = ? AND mes_id = ?";
+                $params = array($collaborator_id,"$month_id"); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
                 if( !$stmt ) {
                     echo 'No';
                     die( print_r( sqlsrv_errors(), true));
@@ -610,7 +620,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $sql = "SELECT evento_id, evento FROM CPA_Evento WHERE evento_id NOT IN (
                             SELECT evento_id FROM CPA_Modificador 
                             WHERE empleado_id = $collaborator_id AND mes_id = '$month_id') 
-                        AND (departamento_id = $department_id OR departamento_id is null and tipo_id = $type_id)";
+                        AND (departamento_id = $department_id OR departamento_id is null) and tipo_id = $type_id";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
@@ -665,6 +675,41 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $sql = "UPDATE CPA_Modificador SET cantidad = ?
                         WHERE empleado_id = ? AND mes_id = ? AND evento_id = ?";
                 $params = array($quantity,$collaborator_id,"$month_id",$event_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Remove modifier
+            case 31:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $event_id = $_GET["event_id"];
+                $sql = "DELETE FROM CPA_Modificador
+                        WHERE empleado_id = ? AND mes_id = ? and evento_id = ?";
+                $params = array($collaborator_id,"$month_id",$event_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Send reportcard
+            case 32:
+                $collaborator_id = $_GET["collaborator_id"];
+                $month_id = $_GET["month_id"];
+                $sql = "UPDATE CPA_CalificacionFinal SET fechaFin = CONVERT(date,GETDATE())
+                        WHERE empleado_id = ? AND mes_id = ?";
+                $params = array($collaborator_id,"$month_id"); 
                 $stmt = sqlsrv_query( $conn, $sql, $params);
                 if( !$stmt ) {
                     echo 'No';

@@ -115,3 +115,7 @@ table tbody tr td input{
 .profile-info{
   font-size: 20px;
 }
+
+#send-btn{
+  margin-top: 20px;
+}

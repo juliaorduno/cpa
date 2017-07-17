@@ -39,6 +39,14 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
     $scope.sources = [];
     $scope.selectedEvent = {};
     $scope.selectedSource = {};
+    $scope.otherAreas = [{
+        name: 'penalizations',
+        unit: 'Incidente'
+    },{
+        name: 'extras',
+        unit: 'Evento'
+    }];
+    $scope.types = [];
     var data = {};
 
     $scope.removeIndicator = function(indicator){
@@ -56,7 +64,24 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
         }, function (response){});
     }
 
-    $scope.clear = function(){
+    $scope.removeModifier = function(modifier){
+        $http({
+            url: "db/connection.php",
+            method: "GET",
+            params: {
+                collaborator_id: collaborator_id,
+                month_id: $scope.currentMonth.mes_id,
+                event_id: modifier,
+                request: 31
+            }
+        }).then(function (response){
+            console.log(response.data);
+            getModifiers();
+            getFinal();
+        }, function (response){});
+    }
+
+    $scope.clearCard = function(){
         $http({
             url: "db/connection.php",
             method: "GET",
@@ -67,6 +92,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
             }
         }).then(function (response){
             getIndicators();
+            getModifiers();
         }, function (response){});
     }
 
@@ -143,8 +169,9 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
                 event_id: $scope.selectedEvent.event_id
             }
         }).then(function (response){
-            Materialize.toast('Enviado', 1000,'',function(){$('#add-event').modal('close')});
+            Materialize.toast('Enviado', 1000,'',function(){$('.add-event').modal('close')});
             getModifiers();
+            getFinal();
         }, function (response){});
     }
 
@@ -162,6 +189,23 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
             }
         }).then(function (response){
             console.log(response.data);
+            getFinal();
+        }, function (response){});
+    }
+
+    $scope.send = function(){
+        $http({
+            url: "db/connection.php", 
+            method: "GET",
+            params: {
+                request: 32,
+                collaborator_id: collaborator_id,
+                month_id: $scope.currentMonth.mes_id,
+            }
+        }).then(function (response){
+            Materialize.toast('Enviado', 1000,'',function(){
+                $('#send-report').modal('close');
+                $location.path('perfil/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);});
         }, function (response){});
     }
 
@@ -316,7 +360,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
         for(var i=0; i<$scope.sources.length; i++){
             data[$scope.sources[i].fuente] =  null;
         }
-        $('#source-ne').autocomplete({
+        $('.source-ne').autocomplete({
             data: data,
             onAutocomplete: function(val) {},
         });
