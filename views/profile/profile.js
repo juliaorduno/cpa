@@ -43,6 +43,39 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }
     }
 
+    var fillGrid = function(){
+        var temp = {};
+        var id = '';
+        var c = 0;
+        for(var i=0; i<$scope.indicators.length; i++){
+            id = $scope.indicators[i]['indicador_id'];
+            for(var j=0; j<$scope.months.length-1; j++){
+                var emptyGrade = {};
+                if(c === 0){
+                    temp = $scope.totalGrades[c];
+                } else{
+                    temp = $scope.totalGrades[c-1];
+                }
+                emptyGrade['area_id'] = temp['area_id'];
+                emptyGrade['indicador_id'] = id;
+                emptyGrade['calificacion'] = '0.00';
+                emptyGrade['porcentaje'] = '0.00';
+                emptyGrade['peso'] = '0.00';
+                emptyGrade['mes_id'] = $scope.months[j].mes_id;
+                
+
+                if(c === $scope.totalGrades.length){
+                    
+                    $scope.totalGrades.push(emptyGrade);
+                } else if($scope.totalGrades[c]['indicador_id'] !== id){
+                    $scope.totalGrades.splice(c,0,emptyGrade);
+                }
+                c++;
+            }
+        }
+        console.log($scope.totalGrades);
+    }
+
     var getFinalGrades = function(){
         $http({
             url: "db/connection.php", //profile
@@ -68,8 +101,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }).then(function (response){
             month_id = month_id.toString();
             $scope.totalEvents[month_id] = response.data;
-            
-            console.log(response.data);
             var extras = false;
             var pen = false;
             if(response.data != ""){
@@ -94,6 +125,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             }
         }).then(function (response){
             $scope.totalGrades = response.data;
+            fillGrid();
         }, function (response){});
     }
 
@@ -102,15 +134,15 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             var object = $scope.grades[i];
             switch($scope.grades[i]["unidad_id"]){
                 case '6':
-                    object["minimo"] = object["minimo"] + "%";
-                    object["meta"] = object["meta"] + "%";
-                    object["real_obtenido"] = object["real_obtenido"] + "%";
+                    object["minimo"] = numeral(object["minimo"]).format('0.00%');
+                    object["meta"] = numeral(object["meta"]).format('0.00%');
+                    object["real_obtenido"] =numeral(object["real_obtenido"]).format('0.00%');
                     break;
 
                 case '8':
-                    object["minimo"] = $rootScope.formatMoney(object["minimo"],2);
-                    object["meta"] = $rootScope.formatMoney(object["meta"],2);
-                    object["real_obtenido"] = $rootScope.formatMoney(object["real_obtenido"],2);
+                    object["minimo"] = numeral(object['minimo']).format('$0,0.00');
+                    object["meta"] = numeral(object['meta']).format('$0,0.00');
+                    object["real_obtenido"] = numeral(object['real_obtenido']).format('$0,0.00');
                     break;
             }
         }
@@ -184,6 +216,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             for(var i=0; i<$scope.months.length-1; i++){
                 getTotalEvents($scope.months[i].mes_id);
             }
+            console.log($scope.indicators);
         }, function (response){});
     }
 
