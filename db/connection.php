@@ -720,6 +720,39 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 sqlsrv_free_stmt($stmt);
                 break;
 
+            //Get available months
+            case 33:
+                $sql = "SELECT mes_id, mes 
+                        FROM CPA_Mes 
+                        WHERE activo = 'SI'";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                } else {
+                    echo "NO INFO";
+                }
+                break;
+
+            //Get department resume
+            case 34:
+                $department_id = $_GET["department_id"];
+                $sql = "SELECT CONCAT(nombre, ' ', apellido) AS empleado, e.empleado_id, puntos_extras, penalizaciones, parcial, final, mes_id 
+                        FROM CPA_CalificacionFinal f, CPA_Empleado e 
+                        WHERE e.departamento_id = $department_id AND e.empleado_id = f.empleado_id
+                        ORDER BY empleado";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                sqlsrv_free_stmt( $stmt);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
+                break;
         }
         sqlsrv_close( $conn );
     }

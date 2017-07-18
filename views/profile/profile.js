@@ -44,6 +44,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
     }
 
     var fillGrid = function(){
+        console.log("entered");
         var temp = {};
         var id = '';
         var c = 0;
@@ -73,7 +74,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                 c++;
             }
         }
-        console.log($scope.totalGrades);
     }
 
     var getFinalGrades = function(){
@@ -162,7 +162,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                 case 7://3
                     $scope.grades = response.data;
                     formatNumber();
-                    //console.log($scope.grades);
                     break;
                 case 11://4
                     $scope.events = response.data;
@@ -216,7 +215,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             for(var i=0; i<$scope.months.length-1; i++){
                 getTotalEvents($scope.months[i].mes_id);
             }
-            console.log($scope.indicators);
         }, function (response){});
     }
 

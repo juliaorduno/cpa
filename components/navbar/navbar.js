@@ -2,7 +2,8 @@
 angular
     .module('cpaApp')
     .directive('cpanavbar', cpaNavbar);
-function cpaNavbar() {
+
+function cpaNavbar($window, $location) {
     var directive = {
         replace: true,
         link: link,
@@ -11,10 +12,12 @@ function cpaNavbar() {
     };
     return directive;
 
-    function link(scope, element, attrs, location) {
+    function link(scope, element, attrs) {
         scope.logout = function(){
-            localStorage.setItem('user', null);
+            $window.localStorage.clear();
             $location.path('/login');
         }
     }
 }
+
+cpaNavbar.$inject = ['$window', '$location'];

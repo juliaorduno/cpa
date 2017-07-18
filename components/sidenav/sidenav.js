@@ -17,7 +17,6 @@ function cpaSidenav($http, $rootScope) {
         scope.menuItems = [];
         scope.dropdownItems = [];
         scope.dropdownButton = '';
-        scope.role = '';
 
         $rootScope.areas = [{
             area: 'Calidad/Operaciones',
@@ -38,6 +37,9 @@ function cpaSidenav($http, $rootScope) {
 
 
         if(scope.user.rol === 'gerente'){
+            scope.department = JSON.parse(localStorage.getItem('department'));
+            scope.role = 'Gerente de ' + scope.department.departamento;
+
             scope.menuItems = [{
                 item: 'Inicio',
                 ref: '/cpa/',
@@ -62,19 +64,8 @@ function cpaSidenav($http, $rootScope) {
                 ref: '/cpa/puntos_extras'
             }];
 
-            $http({
-                url: 'db/connection.php',//sidenav
-                method: 'GET',
-                params: {
-                    usuario_id: scope.user.usuario_id,
-                    request: 2//0
-                }
-            }).then(function(response){
-                scope.role = 'Gerente de ' + response.data.departamento;
-                localStorage.setItem('department', JSON.stringify(response.data));
-            }, function(response){});
-
         } else{
+            scope.role = scope.user.rol;
             scope.menuItems = [{
                 item: 'Inicio',
                 ref: '/cpa/',
@@ -83,7 +74,19 @@ function cpaSidenav($http, $rootScope) {
             }];
 
             scope.dropdownButton = 'Departamentos';
-            scope.dropdownItems = ['Administración','Desarrollo','Soporte','Ventas'];
+            scope.dropdownItems = [{
+                item: 'Administración',
+                ref: '/cpa/'
+            },{
+                item: 'Desarrollo',
+                ref: '/cpa/'
+            },{
+                item: 'Soporte',
+                ref: '/cpa/'
+            },{
+                item: 'Ventas',
+                ref: '/cpa/'
+            }];
         }
 
        $('.dropdown-button').dropdown({

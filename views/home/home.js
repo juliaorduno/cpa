@@ -5,7 +5,59 @@ angular
 
 
 function HomeController($scope,$location,$http) {
-    var ctx = document.getElementById("myChart").getContext('2d');
+    $scope.department = JSON.parse(localStorage.getItem('department'));
+    $scope.user = JSON.parse(localStorage.getItem('user'));
+    $scope.months = [];
+    $scope.currentTab = {tab: '2017'};
+    $scope.resumeData = [];
+
+    if($scope.user === 'gerente'){
+        $http({
+            url: 'db/connection.php',//sidenav
+            method: 'GET',
+            params: {
+                usuario_id: $scope.user.usuario_id,
+                request: 2//0
+            }
+        }).then(function(response){
+            localStorage.setItem('department', JSON.stringify(response.data));
+        }, function(response){});
+
+        $http({
+            url: "db/connection.php",//profile
+            method: "GET",
+            params: {
+                request: 34,
+                department_id: $scope.department.departamento_id
+            }
+        }).then(function (response){
+            $scope.resumeData = response.data;
+        }, function (response){});
+        
+    } else{
+
+    }
+
+    $http({
+        url: "db/connection.php",//profile
+        method: "GET",
+        params: {
+            request: 33
+        }
+    }).then(function (response){
+        $scope.months = response.data;
+        if($scope.months != "NO INFO"){
+            $scope.months.splice(0,0,{
+                mes: 'Resumen',
+                mes_id: '2017'
+            });
+        } 
+     }, function (response){});
+
+     
+
+
+    /*var ctx = document.getElementById("myChart").getContext('2d');
     var myChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -61,7 +113,7 @@ function HomeController($scope,$location,$http) {
                 }],
             },
         }
-    });
+    });*/
 }
 
 HomeController.$inject = ['$scope','$location','$http'];
