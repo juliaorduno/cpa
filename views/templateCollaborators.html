@@ -1,0 +1,11 @@
+<div class="row" ng-if="collaborators !== 'NO INFO'">
+    <div class="collection z-depth-1">
+        <a href="#" ng-click="inspect(c)" class="collection-item avatar" id="collaborator-{{c.empleado_id}}" ng-repeat="c in collaborators">
+            <span class="new badge blue" data-badge-caption="" ng-if="c.mes != null">{{c.final}}</span>
+            <span class="title">{{c.nombre}}</span>
+            <p class="light">{{c.rol}}</p>
+            <p class="light" ng-if="c.mes != null">Última calificación: {{c.mes}}</p>
+            <p class="light" ng-if="c.mes === null">No se ha registrado calificación</p>
+        </a>
+    </div>
+</div>

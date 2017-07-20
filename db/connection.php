@@ -157,7 +157,11 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                     $rows[] = $row;
                 }
                 sqlsrv_free_stmt( $stmt);
-                echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                } else {
+                    echo "NO INFO";
+                }
                 break;
 
             //Get collaborator grades
@@ -743,6 +747,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $sql = "SELECT CONCAT(nombre, ' ', apellido) AS empleado, e.empleado_id, puntos_extras, penalizaciones, parcial, final, mes_id 
                         FROM CPA_CalificacionFinal f, CPA_Empleado e 
                         WHERE e.departamento_id = $department_id AND e.empleado_id = f.empleado_id
+                            AND fechaFin IS NOT NULL
                         ORDER BY empleado";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
@@ -753,6 +758,25 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                     echo json_encode($rows,JSON_UNESCAPED_UNICODE);
                 }
                 break;
+            
+            //Get department info for manager
+            case 35:
+                $department = $_GET["department"];
+                $sql = "SELECT departamento_id, departamento 
+                        FROM CPA_Departamento 
+                        WHERE departamento COLLATE Latin1_General_CI_AI Like '%$department%' COLLATE Latin1_General_CI_AI";
+                $stmt = sqlsrv_query($conn,$sql);
+                if($stmt === false){
+                    die( print_r( sqlsrv_errors(), true));
+                    echo 'Error';
+                }else{
+                    $dpt = sqlsrv_fetch_object($stmt);
+                    echo json_encode($dpt,JSON_UNESCAPED_UNICODE);
+                }
+                
+                sqlsrv_free_stmt($stmt);
+                break;
+            
         }
         sqlsrv_close( $conn );
     }

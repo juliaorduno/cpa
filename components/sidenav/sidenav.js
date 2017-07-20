@@ -17,6 +17,7 @@ function cpaSidenav($http, $rootScope) {
         scope.menuItems = [];
         scope.dropdownItems = [];
         scope.dropdownButton = '';
+        scope.role = '';
 
         $rootScope.areas = [{
             area: 'Calidad/Operaciones',
@@ -37,8 +38,17 @@ function cpaSidenav($http, $rootScope) {
 
 
         if(scope.user.rol === 'gerente'){
-            scope.department = JSON.parse(localStorage.getItem('department'));
-            scope.role = 'Gerente de ' + scope.department.departamento;
+            if(JSON.parse(localStorage.getItem('department')) === null){
+                scope.$on('someEvent', function(e) {
+                    scope.department = JSON.parse(localStorage.getItem('department'));
+                    scope.role = 'Gerente de ' + scope.department.departamento;
+                });
+            } else{
+                scope.department = JSON.parse(localStorage.getItem('department'));
+                scope.role = 'Gerente de ' + scope.department.departamento;
+            }
+            
+            
 
             scope.menuItems = [{
                 item: 'Inicio',
@@ -76,17 +86,22 @@ function cpaSidenav($http, $rootScope) {
             scope.dropdownButton = 'Departamentos';
             scope.dropdownItems = [{
                 item: 'Administración',
-                ref: '/cpa/'
+                ref: '/cpa/administracion',
+                name: 'administracion'
             },{
                 item: 'Desarrollo',
-                ref: '/cpa/'
+                ref: '/cpa/desarrollo',
+                name: 'desarrollo'
             },{
                 item: 'Soporte',
-                ref: '/cpa/'
+                ref: '/cpa/soporte',
+                name: 'soporte'
             },{
                 item: 'Ventas',
-                ref: '/cpa/'
-            }];
+                ref: '/cpa/ventas',
+                name: 'ventas'
+            }];  
+
         }
 
        $('.dropdown-button').dropdown({

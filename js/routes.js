@@ -31,8 +31,16 @@ angular
                 templateUrl: 'views/profile/profile.html',
                 controller: 'ProfileController'
             })
-            .when('/',{
+            .when('/home',{
                 templateUrl: 'views/home/home.html',
                 controller: 'HomeController'
+            })
+            .when('/:department',{
+                templateUrl: 'views/home/home.html',
+                controller: 'HomeController'
+            })
+            .when('/',{
+                templateUrl: 'views/main/main.html',
+                controller: 'MainController'
             });
     }]);

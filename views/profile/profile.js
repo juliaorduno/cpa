@@ -6,6 +6,7 @@ angular
 
 function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
     var collaborator_id = $routeParams.id;
+    $scope.user = JSON.parse(localStorage.getItem('user'));
     $scope.grades = [];
     $scope.months = [];
     $scope.events = [];

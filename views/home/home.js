@@ -3,26 +3,13 @@ angular
     .module('cpaApp')
     .controller('HomeController', HomeController);
 
-
-function HomeController($scope,$location,$http) {
-    $scope.department = JSON.parse(localStorage.getItem('department'));
+function HomeController($scope,$location,$http,$routeParams,$rootScope) {
     $scope.user = JSON.parse(localStorage.getItem('user'));
     $scope.months = [];
     $scope.currentTab = {tab: '2017'};
     $scope.resumeData = [];
 
-    if($scope.user === 'gerente'){
-        $http({
-            url: 'db/connection.php',//sidenav
-            method: 'GET',
-            params: {
-                usuario_id: $scope.user.usuario_id,
-                request: 2//0
-            }
-        }).then(function(response){
-            localStorage.setItem('department', JSON.stringify(response.data));
-        }, function(response){});
-
+    var getResumeData = function(){
         $http({
             url: "db/connection.php",//profile
             method: "GET",
@@ -33,10 +20,69 @@ function HomeController($scope,$location,$http) {
         }).then(function (response){
             $scope.resumeData = response.data;
         }, function (response){});
+    }
+
+    if(localStorage.getItem('user') === null){
+       $location.path("/login");
+    }
+
+    if($scope.user.rol === 'gerente'){
+        $scope.$on('someEvent', function(e) {
+            $scope.department = JSON.parse(localStorage.getItem('department'));
+            getResumeData();
+        });
         
     } else{
-
+        if($location.path() !== '/'){
+            $http({
+                url: 'db/connection.php',//sidenav
+                method: 'GET',
+                params: {
+                    department: $routeParams.department,
+                    request: 35//0
+                }
+            }).then(function(response){
+                localStorage.setItem('department', JSON.stringify(response.data));
+                $scope.department = response.data;
+                $scope.$broadcast ('someEvent');
+                getResumeData(); 
+            }, function(response){});
+        }
     }
+
+    /*if($scope.user.rol === 'gerente'){
+        $http({
+                url: 'db/connection.php',//sidenav
+                method: 'GET',
+                params: {
+                    usuario_id: $scope.user.usuario_id,
+                    request: 2//0
+                }
+            }).then(function(response){
+                localStorage.setItem('department', JSON.stringify(response.data));
+                $scope.department = JSON.parse(localStorage.getItem('department'));
+                $scope.get();
+                getResumeData();
+            }, function(response){});
+    } else{
+        if($location.path() !== '/'){
+            $http({
+                url: 'db/connection.php',//sidenav
+                method: 'GET',
+                params: {
+                    department: $routeParams.department,
+                    request: 35//0
+                }
+            }).then(function(response){
+                localStorage.setItem('department', JSON.stringify(response.data));
+                $scope.department = response.data;
+                $scope.get();
+                getResumeData(); 
+            }, function(response){});
+        } else{
+            $scope.department = null;
+        }
+    }*/
 
     $http({
         url: "db/connection.php",//profile
@@ -116,4 +162,4 @@ function HomeController($scope,$location,$http) {
     });*/
 }
 
-HomeController.$inject = ['$scope','$location','$http'];
+HomeController.$inject = ['$scope','$location','$http','$routeParams','$rootScope'];

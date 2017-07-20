@@ -1,0 +1,3 @@
+<div ng-include="" src="'../cpa/views/home/home.html'" ng-controller="HomeController" ng-if="user.rol === 'gerente'"></div>
+<div ng-include="" src="'../cpa/views/dashboard/dashboard.html'" ng-controller="DashController" ng-if="user.rol !== 'gerente'"></div>
+

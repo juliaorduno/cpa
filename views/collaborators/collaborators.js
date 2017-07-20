@@ -6,13 +6,14 @@ angular
 
 function CollaboratorsController($scope,$location,$http,$rootScope) {
 
+    $scope.user = JSON.parse(localStorage.getItem('user'));
     $scope.department = JSON.parse(localStorage.getItem('department'));
     $scope.collaborators = [];
     $scope.roles = [];
     $scope.form = {
         name: "",
         lastName: "",
-        department_id: $scope.department.departamento_id,
+        department_id: "",
         role: "",
         request: 22
     }
@@ -23,6 +24,7 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
     }
 
     $scope.insertCollaborator = function(){
+        $scope.form.department_id = $scope.department.departamento_id;
         $http({
             url: "db/connection.php", //"db/collaborators.php"
             method: "GET",
@@ -50,7 +52,6 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
             $('#role-ac').autocomplete({
                 data: data,
                 onAutocomplete: function(val) {
-                    //$scope.form.role = val;
                 },
             });
         }, function (response){});
@@ -68,8 +69,17 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
             $scope.collaborators = response.data;
         }, function (response){});
     }
-    
-    getCollaborators();
+
+    if($scope.user.rol !== 'gerente'){
+        $scope.$on('someEvent', function(e) {
+            $scope.department = JSON.parse(localStorage.getItem('department'));
+            
+            getCollaborators();
+        });
+    } else{
+        getCollaborators();
+        
+    }
 
 }
 
