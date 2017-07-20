@@ -25,14 +25,16 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
     $scope.finalGrades = [];
     $scope.totalEvents = {};
     $scope.remainingMonths = [];
+    $scope.existGrade = {
+        '1': false,
+        '2': false,
+        '3': false
+    }
 
     $scope.newReport = function(month){
         $('#remaining-months').modal('close');
         localStorage.setItem('currentMonth', JSON.stringify(month));
         $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre + '/' + month.mes);
-        /*if($scope.finalGrades.some(grade => grade.mes_id === month_id)){
-            $location.path('boleta/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);
-        }*/
     }
 
     $scope.changeMonth = function(selected){
@@ -44,14 +46,29 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }
     }
 
-    var fillGrid = function(){
-        console.log("entered");
+    function existEvent(month_id){
+        var extras = false;
+        var pen = false;
+        if($scope.totalEvents[month_id] !== ""){
+            if($scope.totalEvents[month_id].some(event => event.area_id === '4')){
+                pen = true;
+            } else if($scope.totalEvents[month_id].some(event => event.area_id === '5')){
+                extras = true;
+            }
+        }
+        $scope.extraPoints[month_id] = extras;
+        $scope.penalizations[month_id] = pen;
+    }
+
+    function fillGrid(){
         var temp = {};
         var id = '';
         var c = 0;
-        for(var i=0; i<$scope.indicators.length; i++){
+        var l = $scope.indicators.length;
+        var l2 = $scope.months.length-1;
+        for(var i=0; i<l; i++){
             id = $scope.indicators[i]['indicador_id'];
-            for(var j=0; j<$scope.months.length-1; j++){
+            for(var j=0; j<l2; j++){
                 var emptyGrade = {};
                 if(c === 0){
                     temp = $scope.totalGrades[c];
@@ -64,10 +81,8 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                 emptyGrade['porcentaje'] = '0.00';
                 emptyGrade['peso'] = '0.00';
                 emptyGrade['mes_id'] = $scope.months[j].mes_id;
-                
-
+            
                 if(c === $scope.totalGrades.length){
-                    
                     $scope.totalGrades.push(emptyGrade);
                 } else if($scope.totalGrades[c]['indicador_id'] !== id){
                     $scope.totalGrades.splice(c,0,emptyGrade);
@@ -90,7 +105,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }, function (response){});
     }
 
-    var getTotalEvents = function(month_id){
+    function getTotalEvents(month_id){
         $http({
             url: "db/connection.php", //profile
             method: "GET",
@@ -102,17 +117,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }).then(function (response){
             month_id = month_id.toString();
             $scope.totalEvents[month_id] = response.data;
-            var extras = false;
-            var pen = false;
-            if(response.data != ""){
-                if(response.data.some(event => event.area_id === '4')){
-                    pen = true;
-                } else if(response.data.some(event => event.area_id === '5')){
-                    extras = true;
-                }
-            }
-            $scope.extraPoints[month_id] = extras;
-            $scope.penalizations[month_id] = pen;
+            existEvent(month_id);
         }, function (response){});
     }
 
@@ -162,6 +167,11 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             switch(request){
                 case 7://3
                     $scope.grades = response.data;
+                    for(var i = 1; i < 4; i++){
+                        if($scope.grades.some(grade => grade.area_id === i.toString())){
+                            $scope.existGrade[i.toString()] = true;
+                        }
+                    }
                     formatNumber();
                     break;
                 case 11://4
@@ -201,7 +211,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         }
     }
 
-    var getIndicators = function(){
+    function getIndicators(){
         $http({
             url: "db/connection.php",//profile
             method: "GET",
@@ -211,11 +221,13 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
             }
         }).then(function (response){
             $scope.indicators = response.data;
+            getTotalGrades();
             setResumeData();
             getFinalGrades();
             for(var i=0; i<$scope.months.length-1; i++){
                 getTotalEvents($scope.months[i].mes_id);
             }
+            
         }, function (response){});
     }
 
@@ -250,7 +262,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
 
     if($scope.current.mes != null){
         getIndicators();
-        getTotalGrades();
     }
 
 }

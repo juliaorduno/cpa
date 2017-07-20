@@ -119,3 +119,8 @@ table tbody tr td input{
 #send-btn{
   margin-top: 20px;
 }
+
+
+.collapsible-header{
+  border-color: #79AFD1;
+}
