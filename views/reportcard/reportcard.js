@@ -48,6 +48,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
     }];
     $scope.types = [];
     var data = {};
+    var totalWeight;
 
     $scope.removeIndicator = function(indicator){
         $http({
@@ -75,7 +76,6 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
                 request: 31
             }
         }).then(function (response){
-            console.log(response.data);
             getModifiers();
             getFinal();
         }, function (response){});
@@ -96,12 +96,40 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
         }, function (response){});
     }
 
-    $scope.setValue = function(index, property){
+    $scope.setValue = function(index, property, oldValue){
         $scope.modified = property;
-        var object = $scope.indicators[index];
-        object['porcentaje'] = Number(Math.round(numeral(object['real_obtenido']).value()/numeral(object['meta']).value()+'e2')+'e-2');
-        object['calificacion'] = Number(Math.round(object['peso']*object['porcentaje']+'e2')+'e-2');
-        insertGrade(index);
+        var object = $scope.indicators[index]; 
+        var change = 0;
+        
+        if($scope.modified === 'peso'){
+            change = Math.abs(numeral(object[$scope.modified]).value() - numeral(oldValue).value());   
+            if(numeral(object[$scope.modified]).value()>numeral(oldValue).value()){
+                if(totalWeight+change > 100){
+                    $('#invalid-value').modal('open');
+                    object[$scope.modified] = oldValue;
+                    return;
+                } 
+                totalWeight += change;
+            } else{
+                totalWeight -= change;
+            }
+        }
+            
+            if(object["unidad_id"] === '6' && !object[$scope.modified].includes("%") && $scope.modified !== 'peso'){
+                object[$scope.modified] = object[$scope.modified]/100;
+            }
+
+            var percentage;
+            if(numeral(object['real_obtenido']).value() > numeral(object['meta']).value()){
+                percentage = 1;
+            } else{
+                percentage = numeral(object['real_obtenido']).value()/numeral(object['meta']).value();
+            }
+            object['porcentaje'] = Number(Math.round(percentage+'e2')+'e-2');
+            object['calificacion'] = Number(Math.round(object['peso']*object['porcentaje']+'e2')+'e-2');
+
+            insertGrade(index);
+        
     }
 
     $scope.setSelected = function(selected){
@@ -188,25 +216,32 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
                 quantity: form.cantidad
             }
         }).then(function (response){
-            console.log(response.data);
             getFinal();
         }, function (response){});
     }
 
     $scope.send = function(){
-        $http({
-            url: "db/connection.php", 
-            method: "GET",
-            params: {
-                request: 32,
-                collaborator_id: collaborator_id,
-                month_id: $scope.currentMonth.mes_id,
-            }
-        }).then(function (response){
-            Materialize.toast('Enviado', 1000,'',function(){
-                $('#send-report').modal('close');
-                $location.path('perfil/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);});
-        }, function (response){});
+        if(totalWeight < 100){
+            $('#send-report').modal('close');
+            $('#incomplete').modal('open');
+        } else{
+            $http({
+                url: "db/connection.php", 
+                method: "GET",
+                params: {
+                    request: 32,
+                    collaborator_id: collaborator_id,
+                    month_id: $scope.currentMonth.mes_id,
+                }
+            }).then(function (response){
+                Materialize.toast('Enviado', 1000,'',function(){
+                    $('#send-report').modal('close');
+                    $scope.current.mes = $scope.currentMonth.mes;
+                    localStorage.setItem('current', JSON.stringify($scope.current));
+                    $location.path('perfil/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);});
+                    $rootScope.sent = true;
+            }, function (response){});
+        }
     }
 
     var getModifiers = function(){
@@ -255,7 +290,6 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
         switch(object["unidad_id"]){
             case '6':
                 if(modification){
-                    
                     object[$scope.modified] = numeral(object[$scope.modified]).value() <= 1? 
                                             numeral(object[$scope.modified]).format('0.00%'):
                                             numeral(object[$scope.modified]/100).format('0.00%');
@@ -286,10 +320,13 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
             }
         }).then(function (response){
             $scope.indicators = response.data;
+            totalWeight = 0;
+            var l = $scope.indicators.length
             getSelectOptions();
             getFinal();
             if($scope.indicators.length > 0){
-                for(var i=0; i<$scope.indicators.length; i++){
+                for(var i=0; i<l; i++){
+                    totalWeight += numeral($scope.indicators[i]['peso']).value();
                     if(!$scope.indicators[i].hasOwnProperty('calificacion')){
                         $scope.indicators[i]['real_obtenido'] = 0;
                         $scope.indicators[i]['porcentaje'] = 0;
@@ -342,6 +379,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
     }
 
     $(document).ready(function(){
+        $('.modal').modal();
         $('ul.tabs').tabs({
             swipeable: true,
             responsiveThreshold: true
@@ -364,7 +402,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
             data: data,
             onAutocomplete: function(val) {},
         });
-    }, function (response){});
+    }, function (response){}); 
 
     getIndicators();
     getModifiers();

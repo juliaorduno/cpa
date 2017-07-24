@@ -83,7 +83,7 @@
               <li ng-repeat="area in areas track by $index" ng-if="$index > 2">
                 <div class="collapsible-header">{{area.area}}</div>
                 <div class="collapsible-body" id="area-{{area.id}}">
-                  <table ng-if="area.id === '4' && penalizations[selectedMonth] || area.id === '5' && extraPoints[selectedMonth]">
+                  <table ng-if="area.id === '4' && penalizations[selectedMonth]['contains'] || area.id === '5' && extraPoints[selectedMonth]['contains']">
                     <thead>
                       <tr>
                         <th>Indicador</th>
@@ -101,7 +101,7 @@
                       </tr>
                     </tbody>
                   </table>
-                  <h6 ng-if="area.id === '4' && !penalizations[selectedMonth] || area.id === '5' && !extraPoints[selectedMonth]">
+                  <h6 ng-if="area.id === '4' && !penalizations[selectedMonth]['contains'] || area.id === '5' && !extraPoints[selectedMonth]['contains']">
                     No se registraron {{area.area}}
                   </h6>
                 </div>
@@ -149,11 +149,12 @@
                 </tbody>
                 <caption align="bottom" class="left-align blue-grey lighten-4">{{finalGrades[$index].parcial}}
                   <a href="">
-                    <span tooltipped data-position="left" data-delay="50" data-tooltip="I am tooltip" class="badge" ng-if="extraPoints[months[$index]['mes_id']]">
+                    <span tooltipped data-position="left" data-delay="50" data-tooltip="extraPoints[months[$index]['mes_id']]['types']" class="badge" ng-if="extraPoints[months[$index]['mes_id']]['contains']">
                       <i class="material-icons tiny">add</i>
-                    </span
-                  ></a>
-                  <span class="badge" ng-if="penalizations[months[$index]['mes_id']]"><i class="material-icons tiny">remove</i></span>
+                    </span></a>
+                  <a href="">
+                    <span class="badge" ng-if="penalizations[months[$index]['mes_id']]['contains']"><i class="material-icons tiny">remove</i></span>
+                  </a>
                 </caption>
               </table>
             </div>

@@ -43,14 +43,10 @@
                                 <tbody>
                                     <tr ng-repeat="i in indicators track by $index"  ng-if="i.area_id === area.id" ng-model-options="{ updateOn: 'blur' }">
                                         <td width="400px">{{i.indicador}}</td> 
-                                        <td><input id="meta" type="text" ng-model="i.meta" ng-change="setValue($index,'meta')"></td>
-                                        <td><input id="minimo" type="text" ng-model="i.minimo" ng-change="setValue($index,'minimo')"></td>
-                                        <!--<td contenteditable="true">{{i.meta}}</td>
-                                        <td contenteditable="true">{{i.minimo}}</td>
-                                        <td contenteditable ng-model="i.real">{{i.real}}</td>-->
-                                        <td><input id="realobt" type="text" ng-model="i.real_obtenido" ng-change="setValue($index,'real_obtenido')"></td>
-                                        <td><input id="peso" type="text" ng-model="i.peso" ng-change="setValue($index,'peso')"></td>
-                                        <!--<td contenteditable="true" ng-change="change()" ng-model="i.peso">{{i.peso}}</td>-->
+                                        <td><input id="meta" type="text" ng-model="i.meta" ng-change="setValue($index,'meta','')"></td>
+                                        <td><input id="minimo" type="text" ng-model="i.minimo" ng-change="setValue($index,'minimo','')"></td>
+                                        <td><input id="realobt" type="text" ng-model="i.real_obtenido" ng-change="setValue($index,'real_obtenido','')"></td>
+                                        <td><input id="peso" type="text" ng-model="i.peso" ng-change="setValue($index,'peso','{{i.peso}}')"></td>
                                         <td contenteditable="false">{{i.porcentaje}}</td>
                                         <td contenteditable="false">{{i.calificacion}}</td>
                                         <td><a href="#" class="delete-indicator" ng-click="removeIndicator(i.indicador_id)"><i class="material-icons">remove</i></a></td>
@@ -98,20 +94,20 @@
                             </table>
                             <a class="btn-flat" data-target='add-event-{{a.name}}' ng-click="activateModal(type.tipo_id)" modal>{{a.unit}} nuevo</a>
                         </div>
-                        <div id="add-event-{{a.name}}" class='modal bottom-sheet add-event'>
+                        <div id="add-event-{{a.name}}" class='modal add-event'>
                             <div class="modal-content">
                                 <h5>{{a.unit}} Nuevo</h5>
                                 <div class="row">
-                                    <div class="col s12 m6">
+                                    <div class="col s12 m12">
                                         <div input-field>
-                                            <select
+                                            <select class="selectEvent"
                                             ng-options="e.evento_id as e.evento for e in selectEvents"
                                             ng-model="selectedEvent.event_id"
                                             material-select watch>
                                             </select>
                                         </div>
                                     </div>
-                                    <div input-field class="col s12 m6" class="validate">
+                                    <div input-field class="col s12 m12" class="validate">
                                         <input type="text" class="autocomplete source-ne" ng-model="selectedSource.source">
                                         <label for="source-ne">Fuente de Evidencia</label>
                                     </div>
@@ -136,6 +132,26 @@
                     <div class="modal-footer">
                         <a class="modal-action waves-effect waves-green btn-flat" ng-click="send()">Sí</a>
                         <a class="modal-action modal-close waves-effect waves-green btn-flat">No</a>
+                    </div>
+                </div>
+            </div>
+            <div id="invalid-value" class='modal'>
+                <div class="modal-content">
+                    <h6>Cantidad inválida.</h6>
+                    <div class="row">
+                    </div>
+                    <div class="modal-footer">
+                        <a class="modal-action modal-close waves-effect waves-green btn-flat">Aceptar</a>
+                    </div>
+                </div>
+            </div>
+            <div id="incomplete" class='modal'>
+                <div class="modal-content">
+                    <h6>Debes completar la boleta para poder enviarla.</h6>
+                    <div class="row">
+                    </div>
+                    <div class="modal-footer">
+                        <a class="modal-action modal-close waves-effect waves-green btn-flat">Aceptar</a>
                     </div>
                 </div>
             </div>

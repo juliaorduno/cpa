@@ -4,7 +4,12 @@ angular
     .controller('ProfileController', ProfileController);
 
 
-function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
+function ProfileController($scope,$location,$http,$routeParams,$rootScope,$window) {
+
+    if($rootScope.sent === true){
+        $window.location.reload();
+        $rootScope.sent = false;
+    }
     var collaborator_id = $routeParams.id;
     $scope.user = JSON.parse(localStorage.getItem('user'));
     $scope.grades = [];
@@ -49,15 +54,27 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
     function existEvent(month_id){
         var extras = false;
         var pen = false;
+        var eventExtra = "";
+        var eventPen = "";
         if($scope.totalEvents[month_id] !== ""){
             if($scope.totalEvents[month_id].some(event => event.area_id === '4')){
                 pen = true;
             } else if($scope.totalEvents[month_id].some(event => event.area_id === '5')){
                 extras = true;
             }
+            var l = $scope.totalEvents[month_id].length;
+            for(var i=0; i<l; i++){
+                if($scope.totalEvents[month_id][i].area_id === '4'){
+                    eventPen += (", " + $scope.totalEvents[month_id][i].tipo);
+                } else{
+                    eventExtra += (", " + $scope.totalEvents[month_id][i].tipo);
+                }
+            }
         }
-        $scope.extraPoints[month_id] = extras;
-        $scope.penalizations[month_id] = pen;
+        $scope.extraPoints[month_id]['contains'] = extras;
+        $scope.penalizations[month_id]['contains'] = pen;
+        $scope.extraPoints[month_id]['types'] = eventExtra;
+        $scope.penalizations[month_id]['types'] = eventPen;
     }
 
     function fillGrid(){
@@ -170,6 +187,8 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                     for(var i = 1; i < 4; i++){
                         if($scope.grades.some(grade => grade.area_id === i.toString())){
                             $scope.existGrade[i.toString()] = true;
+                        } else{
+                            $scope.existGrade[i.toString()] = false;
                         }
                     }
                     formatNumber();
@@ -246,6 +265,9 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
                 mes_id: '2017'
             });
             $scope.changeMonth($scope.months[$scope.months.length-1].mes_id);
+            if($scope.current.mes != null){
+                getIndicators();
+            }
         } 
      }, function (response){});
 
@@ -260,10 +282,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope) {
         $scope.remainingMonths = response.data;
     }, function (response){});
 
-    if($scope.current.mes != null){
-        getIndicators();
-    }
 
 }
 
-ProfileController.$inject = ['$scope','$location','$http','$routeParams','$rootScope'];
+ProfileController.$inject = ['$scope','$location','$http','$routeParams','$rootScope','$window'];

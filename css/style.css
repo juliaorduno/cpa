@@ -124,3 +124,7 @@ table tbody tr td input{
 .collapsible-header{
   border-color: #79AFD1;
 }
+
+#invalid-value, #incomplete{
+  width: 400px;
+}
