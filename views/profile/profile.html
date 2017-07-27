@@ -1,14 +1,17 @@
 <cpasidenav></cpasidenav>
 <cpanavbar></cpanavbar>
-<main>
-    <div class="row">
+<ng-include src="'../cpa/views/preloader.html'"  ng-hide="dataLoaded.load"></ng-include>
+<main ng-show="dataLoaded.load">
+    <div class="row" id="to-print">
         <div class="col s12 m12">
           <div class="card-panel">
-            <div class="right" ng-if="remainingMonths.length > 0 && user.rol === 'gerente'">
-              <a class='btn-flat' data-target='remaining-months' modal>
-                  Generar Boleta
-              </a>
-              <!--<a class="dropdown-button btn-flat" href="#" data-activates='profileOptions' dropdown>More</a>-->
+            <div class="right">
+              <a class="dropdown-button btn-flat" href="#" data-activates='profileOptions' data-html2canvas-ignore="true" dropdown>Opciones</a>
+              <ul data-html2canvas-ignore="true" id='profileOptions' class='dropdown-content'>
+                <li ng-if="remainingMonths.length > 0 && user.rol === 'gerente'" ><a data-target='remaining-months' modal> Generar Boleta</a></li>
+                <li ng-if="current.mes != null"><a href="#" ng-click="download()">Descargar</a></li>
+                <li><a data-target='remove-modal' modal>Dar de baja</a></li>
+              </ul>
               <div id='remaining-months' class='modal'>
                 <div class="modal-content">
                   <h5>Boletas pendientes</h5>
@@ -17,33 +20,109 @@
                   </div>
                 </div>
               </div>
-              <ul id='profileOptions' class='dropdown-content'>
-                <li><a href="#">Eliminar</a></li>
-              </ul>
             </div>
-
             <h3>{{current.nombre}}</h3>
+            <h5 class="grey-text text-darken-1">{{department.departamento}}</h5>
             <h5 class="grey-text text-darken-1">{{current.rol}}</h5>
+            <h5 class="grey-text text-darken-1">{{selectedMonth.mes}}</h5>
+            <div id='remove-modal' class='modal'>
+                <div class="modal-content">
+                  <h6>¿Estás seguro de dar de baja a este colaborador? Su información ya no será accesible.</h6>
+                </div>
+                <div class="modal-footer">
+                  <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat">No</a>
+                  <a href="#" ng-click="remove()" class="modal-action modal-close waves-effect waves-green btn-flat">Sí</a>
+                  
+                </div>
+              </div>
+
             <h6 ng-if="current.mes === null">No se ha registrado calificación para este colaborador.</h6>
       
             <div class="row" ng-if="current.mes != null">
               <div class="col m4">
-                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth != '2017'">Calificación Final: <span>{{final[0].final}}</span></h6>
-                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth != '2017'">Calificación Parcial: <span>{{final[0].parcial}}</span></h6>
+                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth.mes_id  != '2017'">Calificación Final: <span>{{final[0].final}}</span></h6>
+                <h6 style="font-size: 17px" class="grey-text text-darken-1" ng-if="months != 'NO INFO' && selectedMonth.mes_id  != '2017'">Calificación Parcial: <span>{{final[0].parcial}}</span></h6>
               </div>
               <div class="col m4"></div>
               <div class="col m4">
-                <div input-field>
+                <div input-field data-html2canvas-ignore="true">
                   <select 
                   ng-model="selectedMonth" 
                   ng-change="changeMonth(selectedMonth)" 
-                  ng-options="month.mes_id as month.mes for month in months"
+                  ng-options="month.mes for month in months"
                   material-select watch>
                   </select>
               </div>
               </div>
             </div>
-            <ul class="collapsible z-depth-0" data-collapsible="accordion" ng-if="selectedMonth != '2017' && current.mes != null">
+            
+            <div ng-if="selectedMonth.mes_id != '2017' && current.mes != null">
+                <div ng-repeat="area in areas track by $index" ng-if="$index < 3">
+                    <div class="section">
+                        <h6 class="blue-text darken-4">{{area.area}}</h6>
+                        <div class="divider"></div>
+                        <table class="bordered table-print" ng-if="existGrade[area.id]">
+                        <thead>
+                          <tr>
+                            <th>Indicador</th>
+                            <th>Unidad</th>
+                            <th>Evidencia</th>
+                            <th>Frecuencia</th>
+                            <th>Meta</th>
+                            <th>Criterio mínimo</th>
+                            <th>Real</th>
+                            <th>Peso</th>
+                            <th>Cumplimiento</th>
+                            <th>Calificación</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="grade in grades" ng-if="grade.area_id === area.id">
+                            <td width="200px">{{grade.indicador}}</td>
+                            <td width="100px">{{grade.unidad}}</td>
+                            <td width="150px">{{grade.fuente}}</td>
+                            <td>{{grade.frecuencia}}</td>
+                            <td>{{grade.meta}}</td>
+                            <td>{{grade.minimo}}</td>
+                            <td>{{grade.real_obtenido}}</td>
+                            <td>{{grade.peso}}</td>
+                            <td>{{grade.porcentaje}}</td>
+                            <td>{{grade.calificacion}}</td>
+                          </tr>
+                        </tbody>
+                        </table>
+                        <h6 ng-if="!existGrade[area.id]">No se registraron indicadores de {{area.area}}</h6>
+                    </div>
+                </div>
+                <div ng-repeat="area in areas track by $index" ng-if="$index > 2">
+                    <div class="section">
+                        <h6 class="blue-text darken-4">{{area.area}}</h6>
+                        <div class="divider"></div>
+                        <table class="bordered table-print" ng-if="area.id === '4' && penalizations[selectedMonth.mes_id]['contains'] || area.id === '5' && extraPoints[selectedMonth.mes_id]['contains']">
+                        <thead>
+                          <tr>
+                            <th>Indicador</th>
+                            <th>Unidad</th>
+                            <th>Evidencia</th>
+                            <th>Cantidad de eventos</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="event in events" ng-if="event.area_id === area.id"> 
+                            <td>{{event.evento}}</td>
+                            <td>{{event.unidad}}</td>
+                            <td>{{event.fuente}}</td>
+                            <td>{{event.cantidad}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <h6 ng-if="area.id === '4' && !penalizations[selectedMonth.mes_id]['contains'] || area.id === '5' && !extraPoints[selectedMonth.mes_id]['contains']">
+                        No se registraron {{area.area}}
+                      </h6>
+                    </div>
+                </div>
+            </div>
+            <!--<ul class="collapsible z-depth-0" data-collapsible="expandable" ng-if="selectedMonth.mes_id != '2017' && current.mes != null">
               <li ng-repeat="area in areas track by $index" ng-if="$index < 3">
                 <div class="collapsible-header">{{area.area}}</div>
                 <div class="collapsible-body" id="area-{{area.id}}">
@@ -83,7 +162,7 @@
               <li ng-repeat="area in areas track by $index" ng-if="$index > 2">
                 <div class="collapsible-header">{{area.area}}</div>
                 <div class="collapsible-body" id="area-{{area.id}}">
-                  <table ng-if="area.id === '4' && penalizations[selectedMonth]['contains'] || area.id === '5' && extraPoints[selectedMonth]['contains']">
+                  <table ng-if="area.id === '4' && penalizations[selectedMonth.mes_id]['contains'] || area.id === '5' && extraPoints[selectedMonth.mes_id]['contains']">
                     <thead>
                       <tr>
                         <th>Indicador</th>
@@ -101,13 +180,13 @@
                       </tr>
                     </tbody>
                   </table>
-                  <h6 ng-if="area.id === '4' && !penalizations[selectedMonth]['contains'] || area.id === '5' && !extraPoints[selectedMonth]['contains']">
+                  <h6 ng-if="area.id === '4' && !penalizations[selectedMonth.mes_id]['contains'] || area.id === '5' && !extraPoints[selectedMonth.mes_id]['contains']">
                     No se registraron {{area.area}}
                   </h6>
                 </div>
               </li>
-            </ul>
-            <div class="table-wrapper" ng-if="selectedMonth === '2017' && current.mes != null">
+            </ul>-->
+            <div class="table-wrapper" ng-if="selectedMonth.mes_id === '2017' && current.mes != null" id="to-print-resume">
               <table class="bordered" id="resume-indicators">
                 <caption></caption>
                 <thead>
@@ -117,7 +196,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr ng-repeat-start="(key, val) in resumeData">
+                  <tr ng-repeat-start="(key, val) in resumeData" ng-if="val.length > 0">
                       <td rowspan="{{val.length}}">{{key}}</td>
                       <td>{{val[0]}}</td>
                   </tr>
@@ -149,11 +228,12 @@
                 </tbody>
                 <caption align="bottom" class="left-align blue-grey lighten-4">{{finalGrades[$index].parcial}}
                   <a href="">
-                    <span tooltipped data-position="left" data-delay="50" data-tooltip="extraPoints[months[$index]['mes_id']]['types']" class="badge" ng-if="extraPoints[months[$index]['mes_id']]['contains']">
+                    <span tooltipped data-position="left" data-delay="50" data-tooltip="{{extraPoints[months[$index]['mes_id']]['types']}}" class="badge" ng-if="extraPoints[months[$index]['mes_id']]['contains']">
                       <i class="material-icons tiny">add</i>
                     </span></a>
                   <a href="">
-                    <span class="badge" ng-if="penalizations[months[$index]['mes_id']]['contains']"><i class="material-icons tiny">remove</i></span>
+                    <span tooltipped data-position="left" data-delay="50" data-tooltip="{{penalizations[months[$index]['mes_id']]['types']}}" class="badge" ng-if="penalizations[months[$index]['mes_id']]['contains']">
+                      <i class="material-icons tiny">remove</i></span>
                   </a>
                 </caption>
               </table>
@@ -162,6 +242,7 @@
         </div>
       </div>
 </main>
+
 
 
 

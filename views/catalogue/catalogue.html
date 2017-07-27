@@ -1,6 +1,7 @@
 <cpasidenav></cpasidenav>
 <cpanavbar></cpanavbar>
-<main>
+<ng-include src="'../cpa/views/preloader.html'"  ng-hide="dataLoaded.load"></ng-include>
+<main ng-show="dataLoaded.load">
     <div class="row">
         <div class="col s12 m12">
           <div class="card-panel">
@@ -81,6 +82,7 @@
                     <th>Unidad de medida</th>
                     <th>Fuente de evidencia</th>
                     <th>Periodicidad</th>
+                    <th></th>
                 </tr>
                 </thead>
 
@@ -92,6 +94,7 @@
                     <td>{{indicator.unidad}}</td>
                     <td>{{indicator.fuente}}</td>
                     <td>{{indicator.frecuencia}}</td>
+                    <td><a href="#" ng-click="removeIndicator(indicator.indicador_id)"><i class="material-icons delete-indicator">remove</i></a></td>
                 </tr>
                 </tbody>
             </table>

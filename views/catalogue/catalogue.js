@@ -11,7 +11,7 @@ function CatalogueController($scope,$location,$http) {
     $scope.roles = [];
     //$scope.selectedRole = [];
     //$scope.selectedArea = [];
-
+    $scope.dataLoaded = {load:false}
     $scope.form = {
         indicator: "",
         area_id: "",
@@ -20,7 +20,21 @@ function CatalogueController($scope,$location,$http) {
         frequency: "",
         source: "",
         department_id: $scope.department.departamento_id,
-        request: 5 //0
+        request: 5
+    }
+
+    $scope.removeIndicator = function(indicator_id){
+        $http({
+            url: "db/connection.php", //"db/catalogue.php"
+            method: "GET",
+            params: {
+                request: 37,
+                indicator_id: indicator_id
+            }
+        }).then(function (response){
+            getData();
+            frequencies = getFrequencies();
+        }, function (response){});
     }
 
     $scope.newIndicator = function(){
@@ -36,6 +50,7 @@ function CatalogueController($scope,$location,$http) {
             params: $scope.form
         }).then(function (response){
             getData();
+            frequencies = getFrequencies();
             Materialize.toast('Enviado', 1000,'',function(){$('#modal1').modal('close')});
         }, function (response){});
     }
@@ -112,14 +127,15 @@ function CatalogueController($scope,$location,$http) {
 
     var getData = function(){
         $http({
-            url: "db/connection.php",//"db/catalogue.php"
+            url: "db/connection.php",
             method: "GET",
             params: {
-                request: 3,//1
+                request: 3,
                 department_id: $scope.department.departamento_id
             }
         }).then(function (response){
             $scope.indicators = response.data;
+            $scope.dataLoaded.load = true;
             getRoles();
         }, function (response){});
     }

@@ -29,6 +29,11 @@ angular
             })
             .when('/perfil/:id/:name',{
                 templateUrl: 'views/profile/profile.html',
+                controller: 'ProfileController',
+                reloadOnSearch: false
+            })
+            .when('/perfil/:id/:name/:month',{
+                templateUrl: 'views/profile/profile.html',
                 controller: 'ProfileController'
             })
             .when('/home',{

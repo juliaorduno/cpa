@@ -1,7 +1,8 @@
 <cpanavbar></cpanavbar>
 <cpasidenav></cpasidenav>
-<main>
-    <div class="row">
+<ng-include src="'../cpa/views/preloader.html'"  ng-hide="dataLoaded.load"></ng-include>
+<main ng-show="dataLoaded.load">
+    <div class="row top-panel">
         <div class="col s12 m12">
           <div class="card-panel">
               <div ng-if="department !== null">
@@ -10,11 +11,11 @@
                     <div class="col s12">
                         <ul tabs>
                             <li class="tab col s3"><a href="#h-2017" class="active" ng-click="currentTab.tab = '2017'">Resumen</a></li>
-                            <li class="tab col s3" ng-repeat="m in months track by $index"  ng-if="$index > 0"><a href="#{{m.mes_id}}" ng-click="currentTab.tab = m.mes_id">{{m.mes}}</a></li>
+                            <li class="tab col s3" ng-repeat="m in months track by $index"  ng-if="$index > 0"><a href="#{{m.mes_id}}" ng-click="currentTab.tab = m.mes_id; remainingCollabs(m)">{{m.mes}}</a></li>
                         </ul>
                     </div>
                     <div class="col s12" ng-repeat="m in months" id="h-{{m.mes_id}}" ng-show="currentTab.tab === m.mes_id">
-                        <table class="striped responsive-table">
+                        <table class="highlight responsive-table">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
@@ -22,6 +23,7 @@
                                     <th>Puntos Extras</th>
                                     <th>Penalizaciones</th>
                                     <th>Final</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -32,17 +34,40 @@
                                     <td>{{d.penalizaciones}}</td>
                                     <td>{{d.final}}</td>
                                 </tr>
+                                <tr ng-repeat="d in remaining" ng-if="currentTab.tab !== '2017'">
+                                    <td>{{d.nombre}}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td ng-if="user.rol === 'gerente'"><a href="#" ng-click="newReport(d)"><i class="material-icons">send</i></a></td>
+                                    <td ng-if="user.rol !== 'gerente'"><a tooltipped data-position="left" data-delay="50" data-tooltip="Falta calificación"><i class="material-icons">warning</i></a></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <div ng-controller="CollaboratorsController" ng-if="user.rol !== 'gerente'">
-                    <h4>Colaboradores</h4>
-                    <ng-include src="'../cpa/views/templateCollaborators.html'"></ng-include>
-                </div>
-                <!-- <canvas id="myChart" width="400" height="100"></canvas>-->
+
             </div>
-          </div>
+        </div>
         </div>
       </div>
+    <div class="row mid-panel top-panel">
+        <div class="col s12 m12" id="dpt-graph">
+            <div class="card-panel">
+                <h5>Progreso anual</h5>
+                <canvas id="myChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="row mid-panel"  ng-if="user.rol !== 'gerente'">
+        <div class="col s12 m12">
+            <div class="card-panel">
+                <div ng-controller="CollaboratorsController">
+                    <h5>Colaboradores</h5>
+                    <ng-include src="'../cpa/views/templateCollaborators.html'"></ng-include>
+                </div>
+            </div>
+        </div>
+    </div>  
 </main>

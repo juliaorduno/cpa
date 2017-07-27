@@ -12,11 +12,12 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
     }
     var collaborator_id = $routeParams.id;
     $scope.user = JSON.parse(localStorage.getItem('user'));
+    $scope.department = JSON.parse(localStorage.getItem('department'));
     $scope.grades = [];
     $scope.months = [];
     $scope.events = [];
     $scope.final = {};
-    $scope.selectedMonth = '';
+    $scope.selectedMonth = {};
     $scope.current = JSON.parse(localStorage.getItem('current'));
     $scope.indicators = [];
     $scope.resumeData = {
@@ -35,6 +36,31 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
         '2': false,
         '3': false
     }
+    $scope.dataLoaded = {load:false}
+
+    $scope.download = function(){
+        var element = document.getElementById('to-print');
+        html2canvas(element, {
+            onrendered: function(canvas) {
+                canvas.toBlob(function(blob) {
+                    saveAs(blob, $scope.current.nombre + "-" + $scope.selectedMonth.mes + ".png");
+                }, "image/png");
+            }
+        });
+    }
+
+    $scope.remove = function(){
+        $http({
+            url: "db/connection.php",
+            method: "GET",
+            params: {
+                request: 36,
+                collaborator_id: collaborator_id
+            }
+        }).then(function (response){
+            $location.path('/colaboradores');
+        }, function (response){});
+    }
 
     $scope.newReport = function(month){
         $('#remaining-months').modal('close');
@@ -44,11 +70,15 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
 
     $scope.changeMonth = function(selected){
         $scope.selectedMonth = selected;
-        if($scope.selectedMonth != '2017'){
+        if($scope.selectedMonth.mes_id !== '2017'){
+            //$location.path('perfil/'+ $scope.current.empleado_id + '/' + $scope.current.nombre + '/' + $scope.selectedMonth.mes);
             getDataPerMonth(7);
             getDataPerMonth(11);
             getDataPerMonth(12);
+        } else{
+            //$location.path('perfil/'+ $scope.current.empleado_id + '/' + $scope.current.nombre);
         }
+        localStorage.setItem('currentViewMonth', JSON.stringify($scope.selectedMonth));
     }
 
     function existEvent(month_id){
@@ -65,12 +95,14 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
             var l = $scope.totalEvents[month_id].length;
             for(var i=0; i<l; i++){
                 if($scope.totalEvents[month_id][i].area_id === '4'){
-                    eventPen += (", " + $scope.totalEvents[month_id][i].tipo);
+                    eventPen += eventPen !== ""?(", " + $scope.totalEvents[month_id][i].tipo):$scope.totalEvents[month_id][i].tipo;
                 } else{
-                    eventExtra += (", " + $scope.totalEvents[month_id][i].tipo);
+                    eventExtra += eventExtra !== ""?(", " + $scope.totalEvents[month_id][i].tipo):$scope.totalEvents[month_id][i].tipo;
                 }
             }
         }
+        $scope.extraPoints[month_id] = {contains: false, types: ''};
+        $scope.penalizations[month_id] = {contains: false, types: ''};
         $scope.extraPoints[month_id]['contains'] = extras;
         $scope.penalizations[month_id]['contains'] = pen;
         $scope.extraPoints[month_id]['types'] = eventExtra;
@@ -111,10 +143,10 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
 
     var getFinalGrades = function(){
         $http({
-            url: "db/connection.php", //profile
+            url: "db/connection.php",
             method: "GET",
             params: {
-                request: 16,//0
+                request: 16,
                 collaborator_id: collaborator_id
             }
         }).then(function (response){
@@ -124,10 +156,10 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
 
     function getTotalEvents(month_id){
         $http({
-            url: "db/connection.php", //profile
+            url: "db/connection.php", 
             method: "GET",
             params: {
-                request: 17,//1
+                request: 17,
                 collaborator_id: collaborator_id,
                 month_id: month_id
             }
@@ -140,11 +172,11 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
 
     var getTotalGrades = function(){
         $http({
-            url: "db/connection.php",//profile
+            url: "db/connection.php",
             method: "GET",
             params: {
                 collaborator_id: collaborator_id,
-                request: 14 //2
+                request: 14 
             }
         }).then(function (response){
             $scope.totalGrades = response.data;
@@ -168,6 +200,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
                     object["real_obtenido"] = numeral(object['real_obtenido']).format('$0,0.00');
                     break;
             }
+            object["porcentaje"] = numeral(object["porcentaje"]).format('0.00%');
         }
     }
 
@@ -177,13 +210,14 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
             method: "GET",
             params: {
                 collaborator_id: collaborator_id,
-                month_id: $scope.selectedMonth,
+                month_id: $scope.selectedMonth.mes_id,
                 request: request
             }
         }).then(function (response){
             switch(request){
-                case 7://3
+                case 7:
                     $scope.grades = response.data;
+                    //console.log($scope.grades);
                     for(var i = 1; i < 4; i++){
                         if($scope.grades.some(grade => grade.area_id === i.toString())){
                             $scope.existGrade[i.toString()] = true;
@@ -199,7 +233,6 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
                 case 12://5
                     $scope.final = response.data;
             }
-            
         }, function (response){});
     }
 
@@ -246,7 +279,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
             for(var i=0; i<$scope.months.length-1; i++){
                 getTotalEvents($scope.months[i].mes_id);
             }
-            
+            $scope.dataLoaded.load = true;
         }, function (response){});
     }
 
@@ -264,7 +297,8 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
                 mes: 'Resumen',
                 mes_id: '2017'
             });
-            $scope.changeMonth($scope.months[$scope.months.length-1].mes_id);
+            $scope.changeMonth($scope.months[$scope.months.length-1]);
+            //$scope.selectedMonth
             if($scope.current.mes != null){
                 getIndicators();
             }
@@ -276,7 +310,7 @@ function ProfileController($scope,$location,$http,$routeParams,$rootScope,$windo
         method: "GET",
         params: {
             collaborator_id: collaborator_id,
-            request: 20//8
+            request: 20
         }
     }).then(function (response){
         $scope.remainingMonths = response.data;

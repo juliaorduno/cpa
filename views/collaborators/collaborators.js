@@ -17,6 +17,7 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
         role: "",
         request: 22
     }
+    $scope.dataLoaded = {load:false}
 
     $scope.inspect = function(collaborator){
         localStorage.setItem('current', JSON.stringify(collaborator));
@@ -67,6 +68,7 @@ function CollaboratorsController($scope,$location,$http,$rootScope) {
             }
         }).then(function (response){
             $scope.collaborators = response.data;
+            $scope.dataLoaded.load = true;
         }, function (response){});
     }
 

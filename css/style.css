@@ -128,3 +128,41 @@ table tbody tr td input{
 #invalid-value, #incomplete{
   width: 400px;
 }
+
+.top-panel, .top-panel div .card-panel{
+  margin-bottom: 0px !important;
+}
+
+.mid-panel{
+  margin-top: 0px !important;
+}
+
+canvas {
+    font-family: Roboto;
+}
+
+.preloader-background {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #eee;
+	
+	position: fixed;
+	z-index: 100;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;	
+}
+
+.table-print{
+  font-size: 14px;
+}
+
+/*#dpt-graph{
+  padding-left: 0px !important;
+}
+
+#dpt-top{
+  padding-right: 0px !important;
+}*/

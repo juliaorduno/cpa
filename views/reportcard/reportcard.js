@@ -47,6 +47,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
         unit: 'Evento'
     }];
     $scope.types = [];
+    $scope.dataLoaded = {load:false}
     var data = {};
     var totalWeight;
 
@@ -320,6 +321,7 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
             }
         }).then(function (response){
             $scope.indicators = response.data;
+            $scope.dataLoaded.load = true;   
             totalWeight = 0;
             var l = $scope.indicators.length
             getSelectOptions();
@@ -333,7 +335,8 @@ function ReportController($scope,$location,$http,$rootScope,$routeParams) {
                         $scope.indicators[i]['calificacion'] = 0;
                     }
                     formatNumber(i,false);
-                }    
+                }
+                 
             } else{
                 $scope.indicators = [];
             }

@@ -76,6 +76,7 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                             AND CPA_Fuente.fuente_id = CPA_Indicador.fuente_id
                             AND CPA_Frecuencia.frecuencia_id = CPA_Indicador.frecuencia_id
                             AND CPA_Rol.departamento_id = $department_id
+                            AND CPA_Indicador.activo = 'SI'
                         ORDER BY indicador";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
@@ -211,11 +212,14 @@ if(count($_GET) > 0 && isset($_GET["request"])){
             //Get modifiers
             case 9:
                 $area_id = $_GET["area_id"];
-                $sql = "SELECT sq.evento_id, sq.evento, u.unidad, sq.tipo_id, sq.area_id
+                $department_id = $_GET["department_id"];
+                $sql = "SELECT sq.evento_id, sq.evento, u.unidad, sq.tipo_id, sq.area_id, sq.departamento_id
                         FROM CPA_Unidad AS u RIGHT JOIN (
-                            SELECT evento_id, evento, unidad_id, e.tipo_id, t.area_id
+                            SELECT evento_id, evento, unidad_id, e.tipo_id, t.area_id, e.departamento_id
                             FROM CPA_Evento AS e, CPA_TipoModificador AS t
-                            WHERE e.tipo_id = t.tipo_id AND area_id = $area_id) AS sq
+                            WHERE e.tipo_id = t.tipo_id AND area_id = $area_id 
+                                AND (e.departamento_id = $department_id OR e.departamento_id IS NULL)
+                                AND e.activo = 'SI') AS sq
                         ON u.unidad_id = sq.unidad_id";
                             
                 $stmt = sqlsrv_query( $conn, $sql);
@@ -352,16 +356,21 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $type_id = $_GET["type_id"];
                 $event = $_GET["event"];
                 $unit_id = $_GET["unit_id"];
-                $sql = "INSERT INTO CPA_Evento(evento, unidad_id, tipo_id) VALUES (?,?,?)";
-                $params = array("$event",$unit_id,$type_id); 
-                $stmt = sqlsrv_query( $conn, $sql, $params);
+                $department = $_GET["department_id"];
+                $procedure_params = array(&$event,&$type_id,&$unit_id,&$department_id);
+
+                $sql = "EXEC CPA_AgregarEvento
+                        @evento = ?, @tipo_id = ?, @unidad_id = ?, @dpt_id = ?";
+                $stmt = sqlsrv_prepare($conn, $sql, $procedure_params);
+
                 if( !$stmt ) {
-                    echo 'No';
                     die( print_r( sqlsrv_errors(), true));
-                }else{
-                    echo 'Enviado';
+                }
+                if( sqlsrv_execute( $stmt ) === false ) {
+                    die( print_r( sqlsrv_errors(), true));
                 }
                 sqlsrv_free_stmt($stmt);
+                echo 'Enviado';
                 break;
             
             //Get all final grades per collaborator
@@ -746,17 +755,29 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                 $department_id = $_GET["department_id"];
                 $sql = "SELECT CONCAT(nombre, ' ', apellido) AS empleado, e.empleado_id, puntos_extras, penalizaciones, parcial, final, mes_id 
                         FROM CPA_CalificacionFinal f, CPA_Empleado e 
-                        WHERE e.departamento_id = $department_id AND e.empleado_id = f.empleado_id
-                            AND fechaFin IS NOT NULL
-                        ORDER BY empleado";
+                        WHERE e.departamento_id = $department_id AND e.empleado_id = f.empleado_id AND fechaFin IS NOT NULL
+                        ORDER BY final DESC";
                 $stmt = sqlsrv_query( $conn, $sql);
                 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
                     $rows[] = $row;
                 }
                 sqlsrv_free_stmt( $stmt);
+                $sql = "SELECT concat(e.nombre, ' ', e.apellido) AS empleado, parcial, puntos_extras, penalizaciones, final, '2017' AS mes_id FROM CPA_Empleado e, (
+                            SELECT f.empleado_id, avg(f.parcial) AS parcial, sum(f.puntos_extras) AS puntos_extras, sum(f.penalizaciones) AS penalizaciones, avg(f.final) as final
+                            FROM CPA_CalificacionFinal f
+                            WHERE fechaFin IS NOT NULL
+                            GROUP BY f.empleado_id) sq
+                        WHERE e.empleado_id = sq.empleado_id
+                        AND e.activo = 'SI' AND e.departamento_id = $department_id
+                        ORDER BY final DESC";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
                 if(!empty($rows)){
                     echo json_encode($rows,JSON_UNESCAPED_UNICODE);
                 }
+                sqlsrv_free_stmt($stmt);
                 break;
             
             //Get department info for manager
@@ -774,6 +795,91 @@ if(count($_GET) > 0 && isset($_GET["request"])){
                     echo json_encode($dpt,JSON_UNESCAPED_UNICODE);
                 }
                 
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Remove collaborator
+            case 36:
+                $collaborator_id = $_GET["collaborator_id"];
+                $active = "NO";
+                $sql = "UPDATE CPA_Empleado SET activo = ?
+                        WHERE empleado_id = ?";
+                $params = array($active,$collaborator_id,); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Remove indicator from catalogue
+            case 37:
+                $indicator_id = $_GET["indicator_id"];
+                $sql = "UPDATE CPA_Indicador SET activo = ? WHERE indicador_id = ?";
+                $params = array("NO", $indicator_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Remove modifier from catalogue
+            case 38:
+                $event_id = $_GET["event_id"];
+                $sql = "UPDATE CPA_Evento SET activo = ? WHERE evento_id = ?";
+                $params = array("NO", $event_id); 
+                $stmt = sqlsrv_query( $conn, $sql, $params);
+                if( !$stmt ) {
+                    echo 'No';
+                    die( print_r( sqlsrv_errors(), true));
+                }else{
+                    echo 'Enviado';
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Get remaining collaborators from department for month
+            case 39:
+                $department_id = $_GET["department_id"];
+                $month_id = $_GET["month_id"];
+                $sql = "SELECT CONCAT(nombre, ' ', apellido) AS nombre, empleado_id, rol, e.rol_id FROM CPA_Empleado e, CPA_Rol r
+                WHERE empleado_id NOT IN(
+	                SELECT empleado_id FROM CPA_CalificacionFinal WHERE mes_id = '$month_id' AND fechaFin IS NOT NULL)
+                AND e.departamento_id = $department_id AND e.activo = 'SI' AND e.rol_id = r.rol_id
+                ORDER BY nombre";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
+                sqlsrv_free_stmt($stmt);
+                break;
+
+            //Get average per month
+            case 40:
+                $department_id = $_GET["department_id"];
+                $sql = "SELECT m.mes, promedio FROM CPA_Mes m, (
+                            SELECT avg(final) AS promedio, mes_id FROM CPA_CalificacionFinal f, CPA_Empleado e
+                            WHERE departamento_id = $department_id AND f.empleado_id = e.empleado_id AND fechaFIn IS NOT NULL
+                            GROUP BY mes_id) sq 
+                        WHERE activo = 'SI'
+                        AND m.mes_id = sq.mes_id";
+                $stmt = sqlsrv_query( $conn, $sql);
+                while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
+                    $rows[] = $row;
+                }
+                if(!empty($rows)){
+                    echo json_encode($rows,JSON_UNESCAPED_UNICODE);
+                }
                 sqlsrv_free_stmt($stmt);
                 break;
             
